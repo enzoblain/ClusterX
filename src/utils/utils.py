@@ -6,8 +6,6 @@ def getValueFromConfigFile(filePath: str = None, *keys: str) -> str:
     if filePath is None or keys is None:
         raise ValueError("Both file path and key are required")
     
-    filePath = 'config/' + filePath
-    
     if not os.path.exists(filePath):
         raise FileNotFoundError("File not found")
     
