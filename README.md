@@ -1,4 +1,4 @@
-# ClusterX
+# 🚀 ClusterX
 
 **ClusterX** is an advanced algorithmic trading bot built using Python. It applies the **Smart Money Concept (SMC)** strategy to analyze market conditions and execute trades based on key liquidity levels and market structure.
 
