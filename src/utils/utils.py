@@ -1,7 +1,6 @@
 import json
 import os
 import requests
-
 from dotenv import load_dotenv
 
 def getValueFromConfigFile(filePath: str = None, *keys: str) -> str:
@@ -44,3 +43,6 @@ def getFromApi(url: str = None, params: dict = None, headers: dict = None) -> di
         raise Exception(f"API request failed with status code {response.status_code}")
 
     return response.json()
+
+def delNonAlphaChars(string: str) -> str:
+    return ''.join(e for e in string if e.isalnum())
