@@ -1,5 +1,7 @@
 import json
 import os
+import requests
+
 from dotenv import load_dotenv
 
 def getValueFromConfigFile(filePath: str = None, *keys: str) -> str:
@@ -31,3 +33,14 @@ def getFromEnv(key: str) -> str:
         raise KeyError(f'Key "{key}" not found in environment variables')
     
     return value
+
+def getFromApi(url: str = None, params: dict = None, headers: dict = None) -> dict:
+    if url is None:
+        raise ValueError("URL is required")
+
+    response = requests.get(url, params=params, headers=headers)
+
+    if response.status_code != 200:
+        raise Exception(f"API request failed with status code {response.status_code}")
+
+    return response.json()

@@ -1,6 +1,8 @@
 {
     "API": {
         "Name": "Twelve Data Api",
-        "API url": "https://api.twelvedata.com"
-    }
+        "API url": "https://api.twelvedata.com/time_series"
+    },
+    "Symbol": "EUR/USD",
+    "Data handling": ""
 }
