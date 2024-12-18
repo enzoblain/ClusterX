@@ -1,9 +1,0 @@
-data/
-logs/
-config/
-src/
-src/data_processing/
-src/execution/
-src/risk_management/
-src/strategy/
-src/utils/

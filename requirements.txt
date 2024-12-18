@@ -1,2 +1,4 @@
 python-dotenv
+pandas
 requests
+discord

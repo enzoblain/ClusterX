@@ -26,4 +26,8 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Run
       run: |
+<<<<<<< HEAD
         python main.py
+=======
+        python main.py
+>>>>>>> 61f2579 (Add GitHub Actions workflow for Python app, implement Discord bot launch, and update requirements)
