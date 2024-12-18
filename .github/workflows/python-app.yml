@@ -23,5 +23,8 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Run
+      env:
+        DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+        API_KEY: ${{ secrets.API_KEY }}
       run: |
         python main.py
