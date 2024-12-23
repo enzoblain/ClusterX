@@ -1,13 +1,25 @@
+import asyncio
 from src.data_processing.data_handler import *
 from src.data_processing.data_saver import saveDataFrameToCsv
 from src.utils.utils import getFromEnv, getValueFromConfigFile
 from src.utils.log import initLog
+from src.execution.algo import algo
+from src.utils.discord import DiscordBot
 
-from src.utils.discord import launchBot
-
-def main(): 
+async def main(): 
     initLog()
-    launchBot()
+
+    discord_bot = DiscordBot()
+    discord_task = asyncio.create_task(discord_bot.start())
+    await discord_bot.wait_until_ready()
+
+    try:
+        while True:
+            await algo(discord_bot)
+            await asyncio.sleep(5)
+
+    except Exception as e:
+        raise e
     
     # api_key = getFromEnv('API_KEY')
     # symbol = getValueFromConfigFile('config.json', 'Symbol')
@@ -16,4 +28,4 @@ def main():
     # saveDataFrameToCsv(symbol, "1min", data)
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
