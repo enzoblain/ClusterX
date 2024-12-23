@@ -21,7 +21,7 @@ def initLog() -> str:
     addLog('Log file created')
 
 def addLog(message: str) -> None:
-    logFilePath = f'logs/run {lastLog()}.log'
+    logFilePath = f'logs/run_{lastLog()}.log'
     with open(logFilePath, 'a') as file:
         file.write(f'{time.strftime("%d-%m-%Y %H:%M:%S", time.localtime())} : {message}\n')
 

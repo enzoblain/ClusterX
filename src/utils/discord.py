@@ -21,7 +21,12 @@ class DiscordBot:
         async def on_ready():
             addLog(f"Bot connected as {self.client.user}")
             self.channel = await self.client.fetch_channel(self.channel_id)
+            await self.set_activity("TradingView")
             self.ready_event.set()
+
+    async def set_activity(self, activity_message):
+        activity = discord.Game(name=activity_message)
+        await self.client.change_presence(activity=activity)
 
     async def start(self):
         await self.client.start(self.token)
