@@ -9,7 +9,6 @@ permissions:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -22,10 +21,40 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Run
+
+  run:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.10"
+    - name: Run application
       env:
         DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
         API_KEY: ${{ secrets.API_KEY }}
         DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID }}
       run: |
-        python main.py
+        mkdir -p logs
+        python main.py > logs/run_0.log 2>&1
+    - name: Upload logs
+      uses: actions/upload-artifact@v3
+      with:
+        name: run_logs
+        path: logs/run_0.log
+
+  retrieve_logs:
+    needs: run
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download logs
+      uses: actions/download-artifact@v3
+      with:
+        name: run_logs
+    - name: Display log file
+      run: |
+        cat logs/run_0.log

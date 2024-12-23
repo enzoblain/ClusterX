@@ -5,7 +5,7 @@ def lastLog() -> str:
     i = 0
 
     while True:
-        if os.path.exists(f'logs/run {i}.log'):
+        if os.path.exists(f'logs/run_{i}.log'):
             i += 1
         else:
             break
@@ -13,9 +13,9 @@ def lastLog() -> str:
     return i - 1
 
 def initLog() -> str:
-    logFilePath = f'logs/run {lastLog() + 1}.log'
+    logFilePath = f'logs/run_{lastLog() + 1}.log'
 
-    with open(logFilePath, 'w') as file:
+    with open(logFilePath, 'w') as _:
         pass
 
     addLog('Log file created')
