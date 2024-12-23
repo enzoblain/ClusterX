@@ -8,42 +8,30 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  main:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
+
     - name: Set up Python 3.10
       uses: actions/setup-python@v3
       with:
         python-version: "3.10"
+
+    - name: Cache Python dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Save dependencies as artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: site-packages
-        path: ~/.local/lib/python3.10/site-packages/
 
-  run:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v3
-      with:
-        python-version: "3.10"
-    - name: Download dependencies
-      uses: actions/download-artifact@v3
-      with:
-        name: site-packages
-    - name: Configure Python path
-      run: |
-        export PYTHONPATH=$PYTHONPATH:~/.local/lib/python3.10/site-packages/
     - name: Run application
       env:
         DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
@@ -52,22 +40,13 @@ jobs:
       run: |
         mkdir -p logs
         python main.py > logs/run_0.log 2>&1
+
     - name: Upload logs
-      if: always()
       uses: actions/upload-artifact@v3
       with:
         name: run_logs
         path: logs/run_0.log
 
-  retrieve_logs:
-    needs: run
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Download logs
-      uses: actions/download-artifact@v3
-      with:
-        name: run_logs
     - name: Display log file
       run: |
         cat logs/run_0.log
