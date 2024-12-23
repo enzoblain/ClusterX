@@ -39,8 +39,9 @@ jobs:
         DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID }}
       run: |
         mkdir -p logs
-        python main.py > logs/run_0.log 2>&1
+        python main.py
     - name: Upload logs
+      if: always()
       uses: actions/upload-artifact@v3
       with:
         name: run_logs
