@@ -1,6 +1,7 @@
 import asyncio
 from src.data_processing.data_handler import getDataFromTwelveDataAPI
-from src.utils.utils import getDataFrameFromCsv, setDatetimeIndex
+from src.utils.data_utils import getDataFrameFromCsv
+from src.utils.data_utils import setDatetimeIndex
 from src.data_processing.data_saver import saveDataFrameToCsv
 from src.utils.utils import getFromEnv, getValueFromConfigFile
 from src.utils.log import initLog

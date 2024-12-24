@@ -1,4 +1,4 @@
-from src.utils.utils import getDataFrameFromCsv
+from src.utils.data_utils import getDataFrameFromCsv
 from src.utils.log import addLog
 from src.utils.utils import delNonAlphaChars
 import os

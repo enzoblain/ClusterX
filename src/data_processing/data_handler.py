@@ -2,7 +2,7 @@ import pandas as pd
 from datetime import datetime
 from src.utils.utils import getFromApi, getValueFromConfigFile
 from src.utils.log import addLog
-from src.utils.utils import setDatetimeIndex
+from src.utils.data_utils import setDatetimeIndex
 
 def getDataFromTwelveDataAPI(api_key: str = None, symbol: str = None, startDate: str = None, endDate: str = None) -> pd.DataFrame:
     if api_key is None or symbol is None:
