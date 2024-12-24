@@ -9,8 +9,13 @@ from src.utils.discord import DiscordBot
 async def main(): 
     initLog()
 
+    api_key = getFromEnv('API_KEY')
+    symbol = getValueFromConfigFile('config.json', 'Symbol')
+    data = getDataFromTwelveDataAPI(api_key, symbol)
+    saveDataFrameToCsv(symbol, "1min", data)
+
     discord_bot = DiscordBot()
-    discord_task = asyncio.create_task(discord_bot.start())
+    _ = asyncio.create_task(discord_bot.start())
     await discord_bot.wait_until_ready()
 
     try:
@@ -20,12 +25,6 @@ async def main():
 
     except Exception as e:
         raise e
-    
-    # api_key = getFromEnv('API_KEY')
-    # symbol = getValueFromConfigFile('config.json', 'Symbol')
-    
-    # data = getDataFromTwelveDataAPI(api_key, symbol)
-    # saveDataFrameToCsv(symbol, "1min", data)
 
 if __name__ == "__main__":
     asyncio.run(main())

@@ -1,8 +1,8 @@
 import pandas as pd
 from datetime import datetime
 import os
-
 from src.utils.utils import getFromApi, getValueFromConfigFile
+from src.utils.log import addLog
 
 def getDataFromTwelveDataAPI(api_key: str = None, symbol: str = None, endDate: None = str) -> pd.DataFrame:
     if api_key is None or symbol is None:
@@ -18,7 +18,14 @@ def getDataFromTwelveDataAPI(api_key: str = None, symbol: str = None, endDate: N
     
     data = getFromApi(url, params)
 
-    data = pd.DataFrame(data['values'])
+    try:
+        data = pd.DataFrame(data['values'])
+    except KeyError as e:
+        addLog(f"Error: {e}")
+        return None
+    
+    addLog(f"Data from TwelveData API: {data.shape[0]} rows")
+    
     data['datetime'] = pd.to_datetime(data['datetime'])
     data.set_index("datetime", inplace=True)
     data = data.reindex(index=data.index[::-1]) # Old data first

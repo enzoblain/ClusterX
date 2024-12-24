@@ -13,7 +13,7 @@
 ### Prerequisites
 Before running **ClusterX**, make sure you have the following installed:
 - Python 3.7+
-- Required libraries: `numpy`, `pandas`, `scikit-learn` and `matplotlib`
+- Required libraries: please check `requirements.txt` file.
 
 ### Installation
 1. Clone the repository:
@@ -30,11 +30,11 @@ Before running **ClusterX**, make sure you have the following installed:
    ```
 
 ### Configuration
-1. **API Keys**: Configure your exchange API keys in the `config.py` file.
-   ```python
-   # config.py
-   API_KEY = 'your_api_key'
-   API_SECRET = 'your_api_secret'
+1. **API Keys**: Configure your exchange API keys and other required credentials, use the `.env` file. Below is an example of how to structure the `.env` file:
+   ```.env
+   API_KEY=...
+   DISCORD_TOKEN=...
+   DISCORD_CHANNEL_ID=...
    ```
 2. **Set Trading Pairs**: Modify the trading pairs and risk parameters as per your preferences.
 
@@ -44,14 +44,14 @@ To start the bot and begin trading, run:
 python main.py
 ```
 
-### Backtesting
+### Backtesting (not implemented yet)
 Before running the bot live, you can backtest it with historical data:
 ```bash
-python backtest.py --data data/your_data_file.csv
+python backtest.py --data data/your_data_folder # This should contain different timeframes
 ```
 
 ### Monitoring
-Monitor the bot’s performance through the logs. You can configure logging settings in `config.json`.
+Monitor the bot’s performance through the logs.
 
 ## Contributing
 Feel free to fork this project and submit pull requests. Contributions are welcome! If you have ideas for improvement or new features, open an issue or contribute directly.
