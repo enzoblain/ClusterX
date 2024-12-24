@@ -1,8 +1,10 @@
 import asyncio
-from src.data_processing.data_handler import *
+from src.data_processing.data_handler import getDataFromTwelveDataAPI
+from src.utils.utils import getDataFrameFromCsv, setDatetimeIndex
 from src.data_processing.data_saver import saveDataFrameToCsv
 from src.utils.utils import getFromEnv, getValueFromConfigFile
 from src.utils.log import initLog
+from src.data_processing.data_analyzer import checkDataContinuity
 from src.execution.algo import algo
 from src.utils.discord import DiscordBot
 
@@ -11,8 +13,12 @@ async def main():
 
     api_key = getFromEnv('API_KEY')
     symbol = getValueFromConfigFile('config.json', 'Symbol')
-    data = getDataFromTwelveDataAPI(api_key, symbol)
-    saveDataFrameToCsv(symbol, "1min", data)
+
+    APIdata = getDataFromTwelveDataAPI(api_key, symbol)
+    saveDataFrameToCsv(symbol, "1min",APIdata)
+    data = setDatetimeIndex(getDataFrameFromCsv(f"data/{symbol.replace('/', '')}/1min.csv"))
+
+    holes = checkDataContinuity(data)
 
     discord_bot = DiscordBot()
     _ = asyncio.create_task(discord_bot.start())

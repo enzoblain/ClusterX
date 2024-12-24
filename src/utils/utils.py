@@ -2,6 +2,7 @@ import json
 import os
 import requests
 from dotenv import load_dotenv
+import pandas as pd
 
 def getValueFromConfigFile(filePath: str = None, *keys: str) -> str:
     if filePath is None or keys is None:
@@ -46,3 +47,23 @@ def getFromApi(url: str = None, params: dict = None, headers: dict = None) -> di
 
 def delNonAlphaChars(string: str) -> str:
     return ''.join(e for e in string if e.isalnum())
+
+def setDatetimeIndex(data: pd.DataFrame) -> None:
+    data['datetime'] = pd.to_datetime(data['datetime'])
+    data.set_index('datetime', inplace=True)
+
+    return data
+
+def getDataFrameFromCsv(filepath: str = None, index: str = None) -> pd.DataFrame:
+    if filepath is None:
+        raise ValueError("File path must be provided")
+    
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"File {filepath} not found")
+    
+    data = pd.read_csv(filepath)
+
+    if index:
+        return data.set_index(index)
+    
+    return data
