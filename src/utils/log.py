@@ -1,5 +1,6 @@
 import os
 import time
+import inspect
 
 def lastLog() -> str:
     i = 0
@@ -18,7 +19,8 @@ def initLog() -> str:
     with open(logFilePath, 'w') as _:
         pass
 
-    addLog('Log file created')
+    addLog(f'Log file created')
+    print(f'Log file created at {logFilePath}')
 
 def addLog(message: str) -> None:
     logFilePath = f'logs/run_{lastLog()}.log'
@@ -26,3 +28,11 @@ def addLog(message: str) -> None:
         file.write(f'{time.strftime("%d-%m-%Y %H:%M:%S", time.localtime())} : {message}\n')
 
     return
+
+def displayError(error_message: str) -> None:
+    caller_function  = caller = inspect.stack()[1].function
+    caller_file = inspect.stack()[1].filename
+
+    addLog(f"ERROR in '{caller_function}' (file: {caller_file}): {error_message}")
+
+    exit()

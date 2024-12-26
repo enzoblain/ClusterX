@@ -2,12 +2,12 @@ import pandas as pd
 import os
 from datetime import datetime
 from src.utils.utils import getFromApi, getValueFromConfigFile
-from src.utils.log import addLog
+from src.utils.log import addLog, displayError
 from src.utils.utils import setIndex
 
 def getDataFromTwelveDataAPI(api_key: str = None, symbol: str = None, startDate: str = None, endDate: str = None, interval: str = None) -> pd.DataFrame:
     if api_key is None or symbol is None or interval is None:
-        raise ValueError("API key, symbol and interval must be provided")
+        displayError("API key, symbol and interval must be provided")
 
     url = getValueFromConfigFile('config.json', 'API', 'API url')
     
@@ -26,16 +26,16 @@ def getDataFromTwelveDataAPI(api_key: str = None, symbol: str = None, startDate:
     
     data = getFromApi(url, params)
 
-    try:
-        data = pd.DataFrame(data['values'])
-    except KeyError as e:
-        addLog(f"Error: {e}")
-        return None
+    if 'values' not in data:
+        displayError(f"Invalid data from TwelveData API ({data['message']})")
     
-    addLog(f"Data from TwelveData API: {data.shape[0]} rows")
+    data = pd.DataFrame(data['values'])
+    
+    addLog(f"Data (interval: {interval}) from TwelveData API: {data.shape[0]} rows")
 
     data = setIndex(data, 'datetime')
     
+    data = data[~data.index.duplicated(keep='first')]
     data = data.reindex(index=data.index[::-1]) # Old data first
     data = data[['open', 'high', 'low', 'close']]
 
@@ -43,10 +43,10 @@ def getDataFromTwelveDataAPI(api_key: str = None, symbol: str = None, startDate:
 
 def getDataFrameFromCsv(filepath: str = None, index: str = None) -> pd.DataFrame:
     if filepath is None:
-        raise ValueError("File path must be provided")
+        displayError("File path must be provided")
     
     if not os.path.exists(filepath):
-        raise FileNotFoundError(f"File {filepath} not found")
+        displayError(f"File {filepath} not found")
     
     data = pd.read_csv(filepath)
 

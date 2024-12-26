@@ -1,12 +1,12 @@
 from src.data_processing.data_handler import getDataFrameFromCsv
-from src.utils.log import addLog
+from src.utils.log import addLog, displayError
 from src.utils.utils import delNonAlphaChars
 import os
 import pandas as pd
 
 def saveDataFrameToCsv(symbol: str = None, interval: str = None, dataframe: pd.DataFrame = None):
     if symbol is None or interval is None or dataframe is None:
-        raise ValueError("symbol, interval, and dataframe must be provided")
+        displayError("symbol, interval, and dataframe must be provided")
     
     symbol = delNonAlphaChars(symbol)
     folder_path = f"data/{symbol}"

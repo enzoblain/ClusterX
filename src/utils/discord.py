@@ -2,7 +2,7 @@ import asyncio
 import discord
 from discord.ext import commands
 from src.utils.utils import getFromEnv
-from src.utils.log import addLog
+from src.utils.log import addLog, displayError
 
 class DiscordBot:
     def __init__(self):
@@ -36,7 +36,7 @@ class DiscordBot:
 
     async def send_message(self, message):
         if self.channel is None:
-            raise ValueError("Channel is not set")
+            displayError("Channel is not set")
         
         await self.channel.send(message)
 
