@@ -34,7 +34,7 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-    - name: Run application
+    - name: Run application and capture logs
       env:
         DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
         API_KEY: ${{ secrets.API_KEY }}
@@ -42,8 +42,14 @@ jobs:
       run: |
         mkdir -p logs
         python main.py > logs/run.log 2>&1
+        exit_code=$?  # Capture the exit status of the Python script
+        if [ $exit_code -ne 0 ]; then
+          echo "Application failed. Check logs/run.log for details."
+        fi
+        exit $exit_code  # Exit with the same exit code of the python script
 
     - name: Upload logs
+      if: always()
       uses: actions/upload-artifact@v3
       with:
         name: run_logs
