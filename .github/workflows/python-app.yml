@@ -43,4 +43,7 @@ jobs:
         mkdir -p logs
         python main.py > logs/run.log 2>&1
         exit_code=$?
-        exit $exit_code
+        if [ $exit_code -ne 0 ]; then
+          echo "Application failed. Check logs/run.log for details."
+        fi
+        exit $exit_code 
