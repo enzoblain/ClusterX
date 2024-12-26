@@ -1,7 +1,6 @@
 import asyncio
-from src.data_processing.data_handler import getDataFromTwelveDataAPI
-from src.utils.data_utils import getDataFrameFromCsv
-from src.utils.data_utils import setDatetimeIndex
+from src.data_processing.data_handler import getDataFromTwelveDataAPI, getDataFrameFromCsv
+from src.utils.utils import setIndex
 from src.data_processing.data_saver import saveDataFrameToCsv
 from src.utils.utils import getFromEnv, getValueFromConfigFile
 from src.utils.log import initLog
@@ -15,9 +14,13 @@ async def main():
     api_key = getFromEnv('API_KEY')
     symbol = getValueFromConfigFile('config.json', 'Symbol')
 
-    APIdata = getDataFromTwelveDataAPI(api_key, symbol)
-    saveDataFrameToCsv(symbol, "1min",APIdata)
-    data = setDatetimeIndex(getDataFrameFromCsv(f"data/{symbol.replace('/', '')}/1min.csv"))
+    interval = '1min'
+
+    APIdata = getDataFromTwelveDataAPI(api_key, symbol, interval=interval)
+    csv_path = saveDataFrameToCsv(symbol, "1min", APIdata)
+    csv_data = getDataFrameFromCsv(csv_path)
+
+    data = setIndex(csv_data, 'datetime')
 
     holes = checkDataContinuity(data)
 

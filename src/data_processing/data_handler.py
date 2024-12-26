@@ -1,18 +1,19 @@
 import pandas as pd
+import os
 from datetime import datetime
 from src.utils.utils import getFromApi, getValueFromConfigFile
 from src.utils.log import addLog
-from src.utils.data_utils import setDatetimeIndex
+from src.utils.utils import setIndex
 
-def getDataFromTwelveDataAPI(api_key: str = None, symbol: str = None, startDate: str = None, endDate: str = None) -> pd.DataFrame:
-    if api_key is None or symbol is None:
-        raise ValueError("api_key and symbol must be provided")
+def getDataFromTwelveDataAPI(api_key: str = None, symbol: str = None, startDate: str = None, endDate: str = None, interval: str = None) -> pd.DataFrame:
+    if api_key is None or symbol is None or interval is None:
+        raise ValueError("API key, symbol and interval must be provided")
 
     url = getValueFromConfigFile('config.json', 'API', 'API url')
     
     params = {
         'symbol': symbol,
-        'interval': '1min',
+        'interval': interval,
         'apikey': api_key
     }
 
@@ -33,9 +34,23 @@ def getDataFromTwelveDataAPI(api_key: str = None, symbol: str = None, startDate:
     
     addLog(f"Data from TwelveData API: {data.shape[0]} rows")
 
-    data = setDatetimeIndex(data)
+    data = setIndex(data, 'datetime')
     
     data = data.reindex(index=data.index[::-1]) # Old data first
     data = data[['open', 'high', 'low', 'close']]
 
+    return data
+
+def getDataFrameFromCsv(filepath: str = None, index: str = None) -> pd.DataFrame:
+    if filepath is None:
+        raise ValueError("File path must be provided")
+    
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"File {filepath} not found")
+    
+    data = pd.read_csv(filepath)
+
+    if index:
+        return data.set_index(index)
+    
     return data
