@@ -2,7 +2,7 @@ import time
 import inspect
 
 def initLog() -> str:
-    logFilePath = f'logs/run.log'
+    logFilePath = f'logs/logs.log'
 
     with open(logFilePath, 'w') as _:
         pass
@@ -10,7 +10,7 @@ def initLog() -> str:
     addLog(f'Log file created')
 
 def addLog(message: str) -> None:
-    logFilePath = f'logs/run.log'
+    logFilePath = f'logs/logs.log'
     with open(logFilePath, 'a') as file:
         file.write(f'{time.strftime("%d-%m-%Y %H:%M:%S", time.localtime())} : {message}\n')
 
