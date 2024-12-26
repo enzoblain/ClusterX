@@ -22,4 +22,4 @@ def displayError(error_message: str) -> None:
 
     addLog(f"ERROR in '{caller_function}' (file: {caller_file}): {error_message}")
 
-    exit()
+    exit(1)
