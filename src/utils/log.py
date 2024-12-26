@@ -8,7 +8,6 @@ def initLog() -> str:
         pass
 
     addLog(f'Log file created')
-    print(f'Log file created at {logFilePath}')
 
 def addLog(message: str) -> None:
     logFilePath = f'logs/run.log'
