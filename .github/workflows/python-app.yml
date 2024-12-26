@@ -1,3 +1,5 @@
+name: Main
+
 on:
   push:
     branches: [ "main" ]
@@ -39,14 +41,14 @@ jobs:
         DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID }}
       run: |
         mkdir -p logs
-        python main.py > logs/run_0.log 2>&1
+        python main.py > logs/run.log 2>&1 || echo "Application failed. Check logs/run.log for details."
 
     - name: Upload logs
       uses: actions/upload-artifact@v3
       with:
         name: run_logs
-        path: logs/run_0.log
+        path: logs/run.log
 
     - name: Display log file
       run: |
-        cat logs/run_0.log
+        cat logs/run.log
