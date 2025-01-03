@@ -3,6 +3,7 @@ from src.data_processing.data_handler import getDataFromTwelveDataAPI, getDataFr
 from src.utils.utils import setIndex
 from src.data_processing.data_saver import saveDataFrameToCsv
 from src.utils.utils import getFromEnv, getValueFromConfigFile
+from src.structures.candle.candle import getCandlesDirection
 
 async def algo(discord_bot: object):
     # message = "Test message"
@@ -19,5 +20,6 @@ async def algo(discord_bot: object):
         csv_data = getDataFrameFromCsv(csv_path)
 
         data = setIndex(csv_data, 'datetime')
+        data = getCandlesDirection(data)
 
         holes = checkDataContinuity(data)
