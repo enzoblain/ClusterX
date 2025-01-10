@@ -4,6 +4,7 @@ import requests
 from dotenv import load_dotenv
 import pandas as pd
 from src.utils.log import displayError
+from datetime import datetime
 
 def getValueFromConfigFile(filePath: str = None, *keys: str) -> str:
     if filePath is None or keys is None:
@@ -62,3 +63,16 @@ def setIndex(data: pd.DataFrame, index: str = None) -> None:
     data.set_index('datetime', inplace=True)
 
     return data
+
+def isInTimeRange(time: str, start: str, end: str) -> bool:
+    time_obj = time
+    start_obj = datetime.strptime(start, "%H:%M")
+    end_obj = datetime.strptime(end, "%H:%M")
+    
+    start_obj = start_obj.replace(year=time_obj.year, month=time_obj.month, day=time_obj.day)
+    end_obj = end_obj.replace(year=time_obj.year, month=time_obj.month, day=time_obj.day)
+    
+    if start_obj <= time_obj <= end_obj:
+        return True
+    
+    return False

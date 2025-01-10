@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from src.utils.utils import getFromApi, getValueFromConfigFile
 from src.utils.log import addLog, displayError
 from src.utils.utils import setIndex
@@ -22,7 +23,7 @@ def getDataFromTwelveDataAPI(api_key: str = None, symbol: str = None, startDate:
     if endDate:
         params['end_date'] = endDate
     else:
-        params['end_date'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        params['end_date'] = datetime.now(ZoneInfo('Australia/Sydney')).strftime('%Y-%m-%d %H:%M:%S')
     
     data = getFromApi(url, params)
 

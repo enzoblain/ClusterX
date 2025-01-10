@@ -5,6 +5,7 @@ from src.data_processing.data_saver import saveDataFrameToCsv
 from src.utils.utils import getFromEnv, getValueFromConfigFile
 from src.structures.candle.candle import getCandlesDirection
 from src.structures.trend.trend_recognition_algorithm import getTrends
+from src.structures.sessions.sessions import getSessions
 
 async def algo(discord_bot: object):
     # message = "Test message"
@@ -23,7 +24,6 @@ async def algo(discord_bot: object):
 
         data = setIndex(csv_data, 'datetime')
         data = getCandlesDirection(data)
-
-        holes = checkDataContinuity(data)
         
-        getTrends(data)
+        trends = getTrends(candles=data, interval=interval)
+        sessions = getSessions(candles=data, interval=interval)

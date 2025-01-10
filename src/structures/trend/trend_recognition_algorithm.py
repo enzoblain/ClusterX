@@ -1,6 +1,8 @@
 import pandas as pd
+from src.utils.log import addLog
 
-def getTrends(candles: pd.DataFrame, trends: list = None):
+def getTrends(candles: pd.DataFrame, trends: list = None, interval: str = None) -> list:
+    addLog(f"Searching for trends in market data for {interval} interval")
     if trends: # if old trends are provided
         last_trend_start = trends[-1]["start"]
         last_trend_start_index = candles.index.get_loc(last_trend_start) # find the index of the last trend start

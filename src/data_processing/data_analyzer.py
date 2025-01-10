@@ -34,14 +34,3 @@ def checkDataContinuity(data: pd.DataFrame, time_interval: str = '1min') -> list
             holes.append((previous_time, current_time))
 
     return holes
-
-def fillHoles(data: pd.DataFrame, time_interval: str = '1min', holes: list = None) -> pd.DataFrame:
-    addLog("Filling holes in data")
-
-    if data.empty:
-        displayError("Data is empty")
-
-    if not isinstance(data.index, pd.DatetimeIndex):
-        displayError("Data index must be a DatetimeIndex")
-
-    NotImplemented
