@@ -73,7 +73,6 @@ def getTrends(candles: pd.DataFrame, trends: list = None):
 
                     else:
                         subtrend["high"] = max(subtrend["high"], current_candle['high'])
-                        trends[-1]["high"] = min(trends[-1]["high"], current_candle['high']) # set the trend high to the current candle high
 
                         i += 1 # move to the next candle
 
@@ -98,7 +97,6 @@ def getTrends(candles: pd.DataFrame, trends: list = None):
 
                     else:
                         subtrend["low"] = min(subtrend["low"], current_candle['low'])
-                        trends[-1]["low"] = max(trends[-1]["low"], current_candle['low']) # set the trend low to the current candle low
 
                         i += 1 # move to the next candle
 
