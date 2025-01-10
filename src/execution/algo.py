@@ -4,6 +4,7 @@ from src.utils.utils import setIndex
 from src.data_processing.data_saver import saveDataFrameToCsv
 from src.utils.utils import getFromEnv, getValueFromConfigFile
 from src.structures.candle.candle import getCandlesDirection
+from src.structures.trend.trend_recognition_algorithm import getTrends
 
 async def algo(discord_bot: object):
     # message = "Test message"
@@ -12,7 +13,8 @@ async def algo(discord_bot: object):
     api_key = getFromEnv('API_KEY')
     symbol = getValueFromConfigFile('config.json', 'Symbol')
 
-    intervals = ['1min', '5min', '15min', '30min', '1h', '4h', '1day', '1week']
+    # intervals = ['1min', '5min', '15min', '30min', '1h', '4h', '1day', '1week']
+    intervals  = ['1min']
 
     for interval in intervals:
         APIdata = getDataFromTwelveDataAPI(api_key, symbol, interval=interval)
@@ -23,3 +25,5 @@ async def algo(discord_bot: object):
         data = getCandlesDirection(data)
 
         holes = checkDataContinuity(data)
+        
+        getTrends(data)
