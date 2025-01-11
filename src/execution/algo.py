@@ -1,4 +1,3 @@
-from src.data_processing.data_analyzer import checkDataContinuity
 from src.data_processing.data_handler import getDataFromTwelveDataAPI, getDataFrameFromCsv
 from src.utils.utils import setIndex
 from src.data_processing.data_saver import saveDataFrameToCsv
@@ -6,6 +5,8 @@ from src.utils.utils import getFromEnv, getValueFromConfigFile
 from src.structures.candle.candle import getCandlesDirection
 from src.structures.trend.trend_recognition_algorithm import getTrends
 from src.structures.sessions.sessions import getSessions
+from src.structures.order_block.order_block import findOrderBlocks
+import pandas as pd
 
 async def algo(discord_bot: object):
     # message = "Test message"
@@ -28,5 +29,7 @@ async def algo(discord_bot: object):
         trends = getTrends(candles=data, interval=interval)
         sessions = getSessions(candles=data, interval=interval)
 
-        for session in sessions:
-            print(session)
+        trends = pd.DataFrame(trends)
+        order_blocks = findOrderBlocks(data, trends)
+
+        print(pd.DataFrame(order_blocks))
