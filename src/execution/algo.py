@@ -27,3 +27,6 @@ async def algo(discord_bot: object):
         
         trends = getTrends(candles=data, interval=interval)
         sessions = getSessions(candles=data, interval=interval)
+
+        for session in sessions:
+            print(session)

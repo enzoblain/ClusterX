@@ -7,9 +7,10 @@ This algorithm detects the **highs** and **lows** during the market sessions: **
 ## 🧠 Core Principles
 
 ### 1️⃣ **Market Sessions**
-- **Sydney Session**: 21:00 UTC - :00 UTC
-- **Europe Session**: 08:00 UTC - 16:00 UTC
-- **America Session**: 16:00 UTC - 00:00 UTC
+- **Asia Session**: 23:00 UTC - 7:30 UTC
+- **Europe Session**: 7:30 UTC - 12:00 UTC
+- **New York AM Session**: 12:00 UTC - 16:30 UTC
+- **New York PM Session**: 16h30 UTC - 21:00 UTC
 
 ### 2️⃣ **Session High and Low**
 - During each session, the algorithm tracks:

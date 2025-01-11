@@ -4,21 +4,26 @@ from src.utils.log import addLog
 
 def getSessions(candles: pd.DataFrame, sessions: list = None, interval: str = None) -> list:
     addLog(f"Searching for sessions and their caracteristics in market data for {interval} interval")
-    sessions_time = [
+    sessions_time = [ # all times are in Sydney time
         {
             "name": "Tokyo",
-            "start": "00:00",
-            "end": "06:00"
+            "start": "10:00",
+            "end": "18:30"
         },
         {
             "name": "London",
-            "start": "07:00",
-            "end": "13:00"
+            "start": "18:30",
+            "end": "23:00"
         },
         {
-            "name": "New York",
-            "start": "14:00",
-            "end": "20:00"
+            "name": "New York AM",
+            "start": "23:00",
+            "end": "03:30"
+        },
+        {
+            "name": "New York PM",
+            "start": "03:30",
+            "end": "08:00"
         }
     ]
 
