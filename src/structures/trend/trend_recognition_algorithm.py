@@ -1,116 +1,94 @@
 import pandas as pd
-from src.utils.log import addLog
 
-def getTrends(candles: pd.DataFrame, trends: list = None, interval: str = None) -> list:
-    addLog(f"Searching for trends in market data for {interval} interval")
-    if trends: # if old trends are provided
+def getTrends(candles: pd.DataFrame, trends: list = None):
+    if trends:  # If old trends are provided
         last_trend_start = trends[-1]["start"]
-        last_trend_start_index = candles.index.get_loc(last_trend_start) # find the index of the last trend start
-
-        i = last_trend_start_index + 1 # start from the next candle after the last trend start
-
-    else: # if no old trends are provided
+        last_trend_start_index = candles.index.get_loc(last_trend_start)
+        i = last_trend_start_index + 1  # Start from the next candle after the last trend start
+        
+    else:  # If no old trends are provided
         first_candle = candles.iloc[0]
-        trends = [
-            {
-                "direction": first_candle['direction'],
-                "start": first_candle.name,
-                "low": first_candle['low'],
-                "high": first_candle['high'],
-                "end": None
-            }
-        ]
-
-        i = 1 # start from the second candle because the trend is defined by the first candle
-
+        trends = [{
+            "direction": first_candle['direction'],
+            "start": first_candle.name,
+            "low": first_candle['low'],
+            "high": first_candle['high'],
+            "end": None
+        }]
+        i = 1
         subtrend = None
 
+    # Convert DataFrame columns to Series for faster access
+    directions = candles["direction"]
+    closes = candles["close"]
+    lows = candles["low"]
+    highs = candles["high"]
+
     while i < len(candles):
-        current_candle = candles.iloc[i]
+        current_direction = directions.iloc[i]
+        current_close = closes.iloc[i]
+        current_low = lows.iloc[i]
+        current_high = highs.iloc[i]
 
-        if current_candle["direction"] == trends[-1]["direction"]: # if the current candle is in the same direction as the trend
-            if subtrend: # if there is a subtrend
-                if subtrend["direction"] == "bullish": # if the trend is bearish but subtrend is bullish
-                    if current_candle['close'] < subtrend["low"]: # if the current candle closes below the subtrend low
-                        trends[-1]["high"] = subtrend["high"] # set the trend last high to the subtrend high
-                        subtrend = None
+        last_trend = trends[-1]
 
-                    else:
-                        subtrend["high"] = max(subtrend["high"], current_candle['high'])
-
-                else: # if the trend is bullish but subtrend is bearish
-                    if current_candle['close'] > subtrend["high"]:
-                        trends[-1]["low"] = subtrend["low"] # set the trend last low to the subtrend low
-                        subtrend = None
-
-                    else:
-                        subtrend["low"] = min(subtrend["low"], current_candle['low'])
-
-            else:
-                trends[-1]["low"] = min(trends[-1]["low"], current_candle['low'])
-                trends[-1]["high"] = max(trends[-1]["high"], current_candle['high'])
-
-            i += 1 # move to the next candle
-
-        else: # if the current candle is in the opposite direction of the trend
+        if current_direction == last_trend["direction"]:  # Same direction as the trend
             if subtrend:
-                if subtrend["direction"] == "bullish":
-                    subtrend["high"] = max(subtrend["high"], current_candle['high'])
-
-                    if current_candle['close'] > trends[-1]["high"]: # if the current candle closes above the trend high
-                        trends[-1]["end"] = subtrend['start']
-
-                        first_candle = candles.iloc[candles.index.get_loc(subtrend['start'])]
-
-                        trends.append({
-                            "direction": current_candle["direction"],
-                            "start": first_candle.name,
-                            "low": first_candle['low'],
-                            "high": first_candle['high'],
-                            "end": None,
-                        })
-
-                        i = candles.index.get_loc(subtrend['start']) + 1 # reset the index to the next candle after the current candle
+                if subtrend["direction"] == "bullish":  # Bullish trend and subtrend 
+                    if current_close < subtrend["low"]:
+                        last_trend["high"] = subtrend["high"]  # Update trend high
                         subtrend = None
-
                     else:
-                        subtrend["high"] = max(subtrend["high"], current_candle['high'])
-
-                        i += 1 # move to the next candle
-
-                else:
-                    subtrend["low"] = min(subtrend["low"], current_candle['low']) 
-
-                    if current_candle['close'] < trends[-1]["low"]: # if the current candle closes below the trend low
-                        trends[-1]["end"] = subtrend['start']
-
-                        first_candle = candles.iloc[candles.index.get_loc(subtrend['start'])]
-
-                        trends.append({
-                            "direction": current_candle["direction"],
-                            "start": first_candle.name,
-                            "low": first_candle['low'],
-                            "high": first_candle['high'],
-                            "end": None
-                        })
-
-                        i = candles.index.get_loc(subtrend['start']) + 1
+                        subtrend["high"] = max(subtrend["high"], current_high)
+                else:  # Bearish trend and subtrend
+                    if current_close > subtrend["high"]:
+                        last_trend["low"] = subtrend["low"]  # Update trend low
                         subtrend = None
-
                     else:
-                        subtrend["low"] = min(subtrend["low"], current_candle['low'])
+                        subtrend["low"] = min(subtrend["low"], current_low)
+            else: # No subtrend
+                last_trend["low"] = min(last_trend["low"], current_low)
+                last_trend["high"] = max(last_trend["high"], current_high)
+            i += 1
+        else:  # Opposite direction
+            if subtrend: # If there is an active subtrend
+                subtrend_start = candles.index.get_loc(subtrend['start'])
 
-                        i += 1 # move to the next candle
-
-            else:
+                if subtrend["direction"] == "bullish" and current_close > last_trend["high"]: # Bullish trend and bullish subtrend
+                    last_trend["end"] = subtrend['start']
+                    trends.append({
+                        "direction": current_direction,
+                        "start": candles.index[subtrend_start],
+                        "low": lows.iloc[subtrend_start],
+                        "high": highs.iloc[subtrend_start],
+                        "end": None
+                    })
+                    i = subtrend_start + 1
+                    subtrend = None
+                elif subtrend["direction"] == "bearish" and current_close < last_trend["low"]: # Bearish trend and bearish subtrend
+                    last_trend["end"] = subtrend['start']
+                    trends.append({
+                        "direction": current_direction,
+                        "start": candles.index[subtrend_start],
+                        "low": lows.iloc[subtrend_start],
+                        "high": highs.iloc[subtrend_start],
+                        "end": None
+                    })
+                    i = subtrend_start + 1
+                    subtrend = None
+                else: # Opposite direction subtrend
+                    if subtrend["direction"] == "bullish": # Bullish trend and bearish subtrend
+                        subtrend["high"] = max(subtrend["high"], current_high) # Update subtrend high
+                    else: # Bearish trend and bullish subtrend
+                        subtrend["low"] = min(subtrend["low"], current_low) # Update subtrend low
+                    i += 1
+            else: # No subtrend
                 subtrend = {
-                    "direction": current_candle["direction"],
-                    "start": current_candle.name,
-                    "low": current_candle['low'],
-                    "high": current_candle['high'],
+                    "direction": current_direction,
+                    "start": candles.index[i],
+                    "low": current_low,
+                    "high": current_high,
                     "end": None
                 }
 
-                # stay on the same candle to test if the subtrend should continue or if it's a one candle reversal
-
-    return trends
+    return pd.DataFrame(trends)

@@ -1,9 +1,7 @@
 import pandas as pd
 from src.utils.utils import isInTimeRange
-from src.utils.log import addLog
 
-def getSessions(candles: pd.DataFrame, sessions: list = None, interval: str = None) -> list:
-    addLog(f"Searching for sessions and their caracteristics in market data for {interval} interval")
+def getSessions(candles: pd.DataFrame, sessions: list = None) -> pd.DataFrame:
     sessions_time = [ # all times are in Sydney time
         {
             "name": "Tokyo",
@@ -29,8 +27,13 @@ def getSessions(candles: pd.DataFrame, sessions: list = None, interval: str = No
 
     if not sessions:
         sessions = []
+        i = 0
+    else:
+        sessions = sessions.to_dict("records")
+        datetime = sessions[-1]["datetime"]
+        i = candles.get_loc(datetime) + 1
 
-    for i in range (len(candles)):
+    for i in range (i, len(candles)):
         for session in sessions_time:
             if isInTimeRange(candles.iloc[i].name, session["start"], session["end"]):
                 if not sessions or sessions[-1]["name"] != session["name"]:
@@ -47,4 +50,4 @@ def getSessions(candles: pd.DataFrame, sessions: list = None, interval: str = No
                     sessions[-1]["low"] = min(sessions[-1]["low"], candles.iloc[i]["low"])
                 break
 
-    return sessions
+    return pd.DataFrame(sessions)

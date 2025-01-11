@@ -5,6 +5,7 @@ def findOrderBlocks(candles : pd.DataFrame, trends : pd.DataFrame, order_blocks:
         i = 0
         order_blocks = []
     else:
+        order_blocks = order_blocks.to_dict(orient="records")
         datetime = order_blocks[-1]["datetime"]
         i = trends["end" == datetime].index + 1
     

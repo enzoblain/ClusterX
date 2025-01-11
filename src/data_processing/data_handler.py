@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from src.utils.utils import getFromApi, getValueFromConfigFile
-from src.utils.log import addLog, displayError
+from src.utils.log import displayError
 from src.utils.utils import setIndex
 
 def getDataFromTwelveDataAPI(api_key: str = None, symbol: str = None, startDate: str = None, endDate: str = None, interval: str = None) -> pd.DataFrame:
@@ -31,8 +31,6 @@ def getDataFromTwelveDataAPI(api_key: str = None, symbol: str = None, startDate:
         displayError(f"Invalid data from TwelveData API ({data['message']})")
     
     data = pd.DataFrame(data['values'])
-    
-    addLog(f"Data (interval: {interval}) from TwelveData API: {data.shape[0]} rows")
 
     data = setIndex(data, 'datetime')
     
