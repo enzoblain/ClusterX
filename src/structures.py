@@ -5,6 +5,8 @@ from src.utils import isInTimeRange
 # External imports
 import pandas as pd
 
+from typing import Tuple
+
 ##############################################
 #                 CANDLES                    #
 ##############################################
@@ -21,12 +23,15 @@ def getCandlesDirection(candles: pd.DataFrame) -> pd.DataFrame:
     return candles
 
 ##############################################
-#                 TRENDS                     #
+#           TRENDS & ORDER BLOCKS            #
 ##############################################
 
-def getTrends(candles: pd.DataFrame, trends: list = None) -> pd.DataFrame:
+def getTrendsAndOrderBlocks(candles: pd.DataFrame, trends: list = None, order_blocks: list = None) -> Tuple[pd.DataFrame]:
     if candles.empty:
         displayError("Candles DataFrame is empty")
+
+    if not order_blocks:
+        order_blocks = []
 
     if trends:  # If old trends are provided
         last_trend_start = trends[-1]["start"]
@@ -91,6 +96,14 @@ def getTrends(candles: pd.DataFrame, trends: list = None) -> pd.DataFrame:
                             "high": highs.iloc[subtrend_start],
                             "end": None
                         })
+
+                        order_blocks.append({
+                            "datetime": last_trend["end"],
+                            "direction": last_trend["direction"],
+                            "high": last_trend["high"],
+                            "low": last_trend["low"]
+                        })
+
                         i = subtrend_start + 1
                         subtrend = None
                     elif subtrend["direction"] == "bearish" and current_close < last_trend["low"]: # Bearish trend and bearish subtrend
@@ -102,6 +115,14 @@ def getTrends(candles: pd.DataFrame, trends: list = None) -> pd.DataFrame:
                             "high": highs.iloc[subtrend_start],
                             "end": None
                         })
+
+                        order_blocks.append({
+                            "datetime": last_trend["end"],
+                            "direction": last_trend["direction"],
+                            "high": last_trend["high"],
+                            "low": last_trend["low"]
+                        })
+
                         i = subtrend_start + 1
                         subtrend = None
                     else: # Opposite direction subtrend
@@ -122,7 +143,7 @@ def getTrends(candles: pd.DataFrame, trends: list = None) -> pd.DataFrame:
     except Exception as e:
         displayError(e)
 
-    return pd.DataFrame(trends)
+    return pd.DataFrame(trends), pd.DataFrame(order_blocks)
 
 ##############################################
 #                 SESSIONS                   #
