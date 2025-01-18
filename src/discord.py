@@ -1,8 +1,12 @@
+# Local imports
+from src.log import addLog, displayError
+from src.utils import getFromEnv
+
+# External imports
 import asyncio
 import discord
+
 from discord.ext import commands
-from src.utils.utils import getFromEnv
-from src.utils.log import addLog, displayError
 
 class DiscordBot:
     def __init__(self):

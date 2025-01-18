@@ -1,12 +1,8 @@
-from src.data_processing.data_handler import getDataFromTwelveDataAPI, getDataFrameFromCsv
-from src.utils.utils import setIndex, getFromEnv, getValueFromConfigFile
-from src.utils.log import addLog
-from src.data_processing.data_saver import saveDataFrameToCsv
-from src.structures.candle.candle import getCandlesDirection
-from src.structures.trend.trend_recognition_algorithm import getTrends
-from src.structures.sessions.sessions import getSessions
-from src.structures.order_block.order_block import findOrderBlocks
-from src.structures.fair_value_gap.fair_value_gap import findFairValueGaps
+# Local imports
+from src.log import addLog
+from src.data import getDataFromTwelveDataAPI, getDataFrameFromCsv, saveDataFrameToCsv
+from src.structures import getCandlesDirection, getTrends, getSessions, findFairValueGaps, findOrderBlocks
+from src.utils import getValueFromConfigFile, getFromEnv, setIndex
 
 async def algo(discord_bot: object):
     # message = "Test message"

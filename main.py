@@ -1,7 +1,10 @@
+# Local imports 
+from src.algo import algo
+from src.discord import DiscordBot
+from src.log import initLog, displayError
+
+# External imports
 import asyncio
-from src.utils.log import initLog, displayError
-from src.execution.algo import algo
-from src.utils.discord import DiscordBot
 
 async def main(): 
     initLog()
