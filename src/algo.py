@@ -24,16 +24,16 @@ async def algo(discord_bot: object):
         csv_path = saveDataFrameToCsv(symbol, interval, APIdata)
         csv_data = getDataFrameFromCsv(csv_path)
 
-        data = setIndex(csv_data, 'datetime')
+        candles = setIndex(csv_data, 'datetime')
 
         addLog(f"Adding candle data")
-        data = getCandlesDirection(data)
+        candles = getCandlesDirection(candles)
         
         addLog(f"Defining the trends and the order blocks in market data")
-        trends, order_blocks = getTrendsAndOrderBlocks(candles=data)
+        trends, order_blocks = getTrendsAndOrderBlocks(candles=candles)
 
         addLog(f"Defining the sessions caracteristics in market data")
-        sessions = getSessions(candles=data)
+        sessions = getSessions(candles=candles)
 
         addLog(f"Searching for fair value gaps in market data")
-        fair_value_gaps = findFairValueGaps(data)
+        fair_value_gaps = findFairValueGaps(candles)

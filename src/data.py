@@ -15,7 +15,7 @@ def saveDataFrameToCsv(symbol: str = None, interval: str = None, dataframe: pd.D
     
     symbol = delNonAlphaChars(symbol)
     folder_path = f"data/{symbol}"
-    filepath = f"data/{symbol}/{interval}.csv"
+    filepath = f"data/{symbol}/{interval}/candles.csv"
 
     if not os.path.exists(folder_path):
         addLog(f"Creating folder {folder_path}")
