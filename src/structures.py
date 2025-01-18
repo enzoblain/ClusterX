@@ -23,17 +23,20 @@ def getCandlesDirection(candles: pd.DataFrame) -> pd.DataFrame:
     return candles
 
 ##############################################
-#           TRENDS & ORDER BLOCKS            #
+#            TRENDS & ORDER BLOCKS           #
 ##############################################
 
-def getTrendsAndOrderBlocks(candles: pd.DataFrame, trends: list = None, order_blocks: list = None) -> Tuple[pd.DataFrame]:
+def getTrendsAndOrderBlocks(candles: pd.DataFrame, trends: pd.DataFrame = None, order_blocks: pd.DataFrame = None) -> Tuple[pd.DataFrame]:
     if candles.empty:
         displayError("Candles DataFrame is empty")
 
-    if not order_blocks:
+    if order_blocks:
+        order_blocks = order_blocks.to_dict("records")
+    else:
         order_blocks = []
 
     if trends:  # If old trends are provided
+        trends = trends.to_dict("records")
         last_trend_start = trends[-1]["start"]
         last_trend_start_index = candles.index.get_loc(last_trend_start)
         i = last_trend_start_index + 1  # Start from the next candle after the last trend start
