@@ -9,13 +9,13 @@ import pandas as pd
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-def saveDataFrameToCsv(symbol: str = None, interval: str = None, dataframe: pd.DataFrame = None) -> str:
-    if symbol is None or interval is None or dataframe is None:
+def saveDataFrameToCsv(symbol: str = None, interval: str = None, filename: str = None, dataframe: pd.DataFrame = None) -> str:
+    if symbol is None or interval is None or filename is None or dataframe is None:
         displayError("symbol, interval, and dataframe must be provided")
     
     symbol = delNonAlphaChars(symbol)
     folder_path = f"data/{symbol}"
-    filepath = f"data/{symbol}/{interval}/candles.csv"
+    filepath = f"data/{symbol}/{interval}/{filename}.csv"
 
     if not os.path.exists(folder_path):
         addLog(f"Creating folder {folder_path}")
@@ -29,7 +29,6 @@ def saveDataFrameToCsv(symbol: str = None, interval: str = None, dataframe: pd.D
 
         try:   
             csv_data = getDataFrameFromCsv(filepath)
-            csv_data = setIndex(csv_data, 'datetime')
 
             combined_dataFrame = pd.concat([csv_data, dataframe])
             combined_dataFrame = combined_dataFrame[~combined_dataFrame.index.duplicated(keep='last')]
@@ -88,7 +87,7 @@ def getDataFrameFromCsv(filepath: str = None, index: str = None) -> pd.DataFrame
         displayError(f"File {filepath} not found")
 
     try:
-        data = pd.read_csv(filepath)
+        data = pd.read_csv(filepath, index_col=0)
 
     except Exception as e:
         displayError(e)

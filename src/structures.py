@@ -102,9 +102,11 @@ def getTrendsAndOrderBlocks(candles: pd.DataFrame, trends: pd.DataFrame = None, 
 
                         order_blocks.append({
                             "datetime": last_trend["end"],
+                            "type": "Order Block",
                             "direction": last_trend["direction"],
                             "high": last_trend["high"],
-                            "low": last_trend["low"]
+                            "low": last_trend["low"],
+                            "Retested": False
                         })
 
                         i = subtrend_start + 1
@@ -121,9 +123,11 @@ def getTrendsAndOrderBlocks(candles: pd.DataFrame, trends: pd.DataFrame = None, 
 
                         order_blocks.append({
                             "datetime": last_trend["end"],
+                            "type": "Order Block",
                             "direction": last_trend["direction"],
                             "high": last_trend["high"],
-                            "low": last_trend["low"]
+                            "low": last_trend["low"],
+                            "Retested": False
                         })
 
                         i = subtrend_start + 1
@@ -234,53 +238,23 @@ def findFairValueGaps(candles: pd.DataFrame, fair_value_gaps : pd.DataFrame = No
             if candles.iloc[i - 1]["low"] > candles.iloc[i + 1]["high"]: # bearish gap
                 fair_value_gaps.append({
                     "datetime": candles.iloc[i].name,
+                    "type": "Fair Value Gap",
                     "direction": "bearish",
                     "high": candles.iloc[i -1]["low"],
-                    "low": candles.iloc[i + 1]["high"]
+                    "low": candles.iloc[i + 1]["high"],
+                    "Retested": False
                 })
             elif candles.iloc[i - 1]["high"] < candles.iloc[i + 1]["low"]: # bullish gap
                 fair_value_gaps.append({
                     "datetime": candles.iloc[i].name,
+                    "type": "Fair Value Gap",
                     "direction": "bullish",
                     "high": candles.iloc[i + 1]["low"],
-                    "low": candles.iloc[i - 1]["high"]             
+                    "low": candles.iloc[i - 1]["high"],
+                    "Retested": False           
                 })
 
     except Exception as e:
         displayError(e)
 
     return pd.DataFrame(fair_value_gaps)
-
-##############################################
-#               ORDER BLOCKS                 #
-##############################################
-
-def findOrderBlocks(candles : pd.DataFrame, trends : pd.DataFrame, order_blocks: list = None) -> pd.DataFrame:
-    if candles.empty:
-        displayError("Candles DataFrame is empty")
-
-    if trends.empty:
-        displayError("Trends DataFrame is empty")
-    
-    try:
-        if not order_blocks:
-            i = 0
-            order_blocks = []
-        else:
-            order_blocks = order_blocks.to_dict(orient="records")
-            datetime = order_blocks[-1]["datetime"]
-            i = trends["end" == datetime].index + 1
-        
-        for i in range(i, len(trends)):
-            current_datetime = candles.iloc[i].name
-            order_blocks.append({
-                "datetime": trends.iloc[i]["end"],
-                "direction": trends.iloc[i]["direction"],
-                "high": candles.loc[current_datetime]["high"],
-                "low": candles.loc[current_datetime]["low"],
-            })
-
-    except Exception as e:
-        displayError(e)
-
-    return pd.DataFrame(order_blocks)

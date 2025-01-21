@@ -4,5 +4,5 @@
         "API url": "https://api.twelvedata.com/time_series"
     },
     "Symbol": "EUR/USD",
-    "Data handling": ""
+    "Run type": "test"
 }
