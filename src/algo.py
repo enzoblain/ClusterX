@@ -1,5 +1,5 @@
 # Local imports
-from src.log import addLog
+from src.log import addLog, displayError
 from src.data import getDataFromTwelveDataAPI, getDataFrameFromCsv, saveDataFrameToCsv
 from src.structures import getCandlesDirection, getTrendsAndOrderBlocks, getSessions, findFairValueGaps
 from src.utils import getValueFromConfigFile, getFromEnv
@@ -13,17 +13,19 @@ async def algo(discord_bot: object):
 
     api_key = getFromEnv('API_KEY')
     symbol = getValueFromConfigFile('config.json', 'Symbol')
+    env = getValueFromConfigFile('config.json', 'Environment')
 
+    if env not in ['prd', 'dev', 'test']:
+       displayError(f"Invalid run type \"{env}\"")
 
-    if run_type == 'prd' or run_type == 'dev':
+    if env == 'prd' or env == 'dev':
         intervals = ['1min', '5min', '15min', '30min', '1h', '4h', '1day', '1week']
-    elif run_type == 'test':
+    elif env == 'test':
         intervals  = ['1min']
-
-    run_type = getValueFromConfigFile('config.json', 'Run type')
+        
 
     for interval in intervals:
-        if run_type == 'prd' or run_type == 'dev':
+        if env == 'prd' or env == 'dev':
             addLog(f"Preparing data for analysis (interval: {interval})")
 
             addLog(f"Getting data from Twelve Data API")
@@ -32,7 +34,7 @@ async def algo(discord_bot: object):
             addLog(f"Saving data to CSV")
             csv_path = saveDataFrameToCsv(symbol, interval, 'candles', APIdata)
         
-        elif run_type == 'test':
+        elif env == 'test':
             csv_path = f'data/{symbol}/{interval}/candles.csv'
     
         candles = getDataFrameFromCsv(csv_path)

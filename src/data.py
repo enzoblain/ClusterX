@@ -21,6 +21,10 @@ def saveDataFrameToCsv(symbol: str = None, interval: str = None, filename: str =
         addLog(f"Creating folder {folder_path}")
         os.makedirs(folder_path)
 
+    if not os.path.exists(f"data/{symbol}/{interval}"):
+        addLog(f"Creating folder {folder_path}/{interval}")
+        os.makedirs(f"data/{symbol}/{interval}")
+
     if not os.path.exists(filepath):
         addLog(f"Creating file {filepath}")
         dataframe.to_csv(filepath, index=True)
