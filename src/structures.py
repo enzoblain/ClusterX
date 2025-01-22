@@ -38,14 +38,14 @@ def getTrendsAndOrderBlocks(candles: pd.DataFrame, trends: pd.DataFrame = None, 
     if trends:  # If old trends are provided
         trends = trends.to_dict("records")
         last_trend_start = trends[-1]["start"]
-        last_trend_start_index = candles.index.get_loc(last_trend_start)
+        last_trend_start_index = candles[candles['datetime'] == last_trend_start].index[0]
         i = last_trend_start_index + 1  # Start from the next candle after the last trend start
         
     else:  # If no old trends are provided
         first_candle = candles.iloc[0]
         trends = [{
             "direction": first_candle['direction'],
-            "start": first_candle.name,
+            "start": first_candle['datetime'],
             "low": first_candle['low'],
             "high": first_candle['high'],
             "end": None
@@ -88,7 +88,7 @@ def getTrendsAndOrderBlocks(candles: pd.DataFrame, trends: pd.DataFrame = None, 
                 i += 1
             else:  # Opposite direction
                 if subtrend: # If there is an active subtrend
-                    subtrend_start = candles.index.get_loc(subtrend['start'])
+                    subtrend_start = candles[candles['datetime'] == subtrend['start']].index[0]
 
                     if subtrend["direction"] == "bullish" and current_close > last_trend["high"]: # Bullish trend and bullish subtrend
                         last_trend["end"] = subtrend['start']
@@ -141,7 +141,7 @@ def getTrendsAndOrderBlocks(candles: pd.DataFrame, trends: pd.DataFrame = None, 
                 else: # No subtrend
                     subtrend = {
                         "direction": current_direction,
-                        "start": candles.index[i],
+                        "start": candles.iloc[i]["datetime"],
                         "low": current_low,
                         "high": current_high,
                         "end": None
@@ -191,22 +191,22 @@ def getSessions(candles: pd.DataFrame, sessions: list = None) -> pd.DataFrame:
         else:
             sessions = sessions.to_dict("records")
             datetime = sessions[-1]["datetime"]
-            i = candles.get_loc(datetime) + 1
+            i = candles[candles['datetime'] == datetime].index[0] + 1
 
         for i in range (i, len(candles)):
             for session in sessions_time:
-                if isInTimeRange(candles.iloc[i].name, session["start"], session["end"]):
+                if isInTimeRange(candles.iloc[i]['datetime'], session["start"], session["end"]):
                     if not sessions or sessions[-1]["name"] != session["name"]:
                         sessions.append({
                             "name": session["name"],
-                            "start": candles.iloc[i].name,
-                            "end": candles.iloc[i].name,
+                            "start": candles.iloc[i]['datetime'],
+                            "end": candles.iloc[i]['datetime'],
                             "high": candles.iloc[i]["high"],
                             "low": candles.iloc[i]["low"]
                         })
 
                     else:
-                        sessions[-1]["end"] = candles.iloc[i].name
+                        sessions[-1]["end"] = candles.iloc[i]['datetime']
                         sessions[-1]["high"] = max(sessions[-1]["high"], candles.iloc[i]["high"])
                         sessions[-1]["low"] = min(sessions[-1]["low"], candles.iloc[i]["low"])
 
@@ -232,12 +232,12 @@ def findFairValueGaps(candles: pd.DataFrame, fair_value_gaps : pd.DataFrame = No
         else:
             fair_value_gaps = fair_value_gaps.to_dict('records')
             datetime = fair_value_gaps[-1]["datetime"]
-            i = candles.get_loc(datetime) + 1
+            i = candles[candles['datetime'] == datetime].index[0] + 1
             
         for i in range(i, len(candles) - 1):
             if candles.iloc[i - 1]["low"] > candles.iloc[i + 1]["high"]: # bearish gap
                 fair_value_gaps.append({
-                    "datetime": candles.iloc[i].name,
+                    "datetime": candles.iloc[i]['datetime'],
                     "type": "Fair Value Gap",
                     "direction": "bearish",
                     "high": candles.iloc[i -1]["low"],
@@ -246,7 +246,7 @@ def findFairValueGaps(candles: pd.DataFrame, fair_value_gaps : pd.DataFrame = No
                 })
             elif candles.iloc[i - 1]["high"] < candles.iloc[i + 1]["low"]: # bullish gap
                 fair_value_gaps.append({
-                    "datetime": candles.iloc[i].name,
+                    "datetime": candles.iloc[i]['datetime'],
                     "type": "Fair Value Gap",
                     "direction": "bullish",
                     "high": candles.iloc[i + 1]["low"],

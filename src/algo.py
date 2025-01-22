@@ -2,7 +2,7 @@
 from src.log import addLog
 from src.data import getDataFromTwelveDataAPI, getDataFrameFromCsv, saveDataFrameToCsv
 from src.structures import getCandlesDirection, getTrendsAndOrderBlocks, getSessions, findFairValueGaps
-from src.utils import getValueFromConfigFile, getFromEnv, setIndex
+from src.utils import getValueFromConfigFile, getFromEnv
 
 # External imports
 import pandas as pd
@@ -14,13 +14,16 @@ async def algo(discord_bot: object):
     api_key = getFromEnv('API_KEY')
     symbol = getValueFromConfigFile('config.json', 'Symbol')
 
-    # intervals = ['1min', '5min', '15min', '30min', '1h', '4h', '1day', '1week']
-    intervals  = ['1min']
+
+    if run_type == 'prd' or run_type == 'dev':
+        intervals = ['1min', '5min', '15min', '30min', '1h', '4h', '1day', '1week']
+    elif run_type == 'test':
+        intervals  = ['1min']
 
     run_type = getValueFromConfigFile('config.json', 'Run type')
 
     for interval in intervals:
-        if run_type != 'test':
+        if run_type == 'prd' or run_type == 'dev':
             addLog(f"Preparing data for analysis (interval: {interval})")
 
             addLog(f"Getting data from Twelve Data API")
@@ -29,11 +32,11 @@ async def algo(discord_bot: object):
             addLog(f"Saving data to CSV")
             csv_path = saveDataFrameToCsv(symbol, interval, 'candles', APIdata)
         
-        else:
-            csv_path = 'data/EURUSD/1min/candles.csv'
+        elif run_type == 'test':
+            csv_path = f'data/{symbol}/{interval}/candles.csv'
     
         candles = getDataFrameFromCsv(csv_path)
-        candles.index = pd.to_datetime(candles.index)
+        candles['datetime'] = pd.to_datetime(candles['datetime'])
 
         addLog(f"Adding candle data")
         candles = getCandlesDirection(candles)

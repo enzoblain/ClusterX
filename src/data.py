@@ -1,6 +1,6 @@
 # Local imports
 from src.log import addLog, displayError
-from src.utils import delNonAlphaChars, getFromApi, getValueFromConfigFile, setIndex
+from src.utils import delNonAlphaChars, getFromApi, getValueFromConfigFile
 
 # External imports
 import os
@@ -24,6 +24,7 @@ def saveDataFrameToCsv(symbol: str = None, interval: str = None, filename: str =
     if not os.path.exists(filepath):
         addLog(f"Creating file {filepath}")
         dataframe.to_csv(filepath, index=True)
+
     else: 
         addLog(f"File {filepath} already exists. Combining dataframes")
 
@@ -31,7 +32,8 @@ def saveDataFrameToCsv(symbol: str = None, interval: str = None, filename: str =
             csv_data = getDataFrameFromCsv(filepath)
 
             combined_dataFrame = pd.concat([csv_data, dataframe])
-            combined_dataFrame = combined_dataFrame[~combined_dataFrame.index.duplicated(keep='last')]
+            combined_dataFrame = combined_dataFrame[~combined_dataFrame['datetime'].duplicated(keep='last')]
+            combined_dataFrame = combined_dataFrame.reset_index(drop=True)
 
             os.remove(filepath)
             combined_dataFrame.to_csv(filepath, index=True)
@@ -67,12 +69,9 @@ def getDataFromTwelveDataAPI(api_key: str = None, symbol: str = None, startDate:
     
     try:
         data = pd.DataFrame(data['values'])
-
-        data = setIndex(data, 'datetime')
-        
-        data = data[~data.index.duplicated(keep='first')]
-        data = data.reindex(index=data.index[::-1]) # Old data first
-        data = data[['open', 'high', 'low', 'close']]
+        data = data.reindex(index=data.index[::-1], ) # Old data first
+        data = data.reset_index(drop=True)
+        data = data[['datetime', 'open', 'high', 'low', 'close']]
     
     except Exception as e:
         displayError(e)

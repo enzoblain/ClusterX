@@ -59,20 +59,6 @@ def getFromApi(url: str = None, params: dict = None, headers: dict = None) -> di
 def delNonAlphaChars(string: str) -> str:
     return ''.join(e for e in string if e.isalnum())
 
-def setIndex(data: pd.DataFrame, index: str = None) -> None:
-    if index is None:
-        displayError("Index must be provided")
-    
-    if index not in data.columns:
-        displayError(f"Index {index} not found in data")
-    
-    if index  == 'datetime':
-        data['datetime'] = pd.to_datetime(data['datetime'])
-    
-    data.set_index('datetime', inplace=True)
-
-    return data
-
 def isInTimeRange(time: str, start: str, end: str) -> bool:
     try:
         time_obj = time
