@@ -39,8 +39,8 @@ def lotSizeCalculator(balance: np.float64, risk: np.float64, stop_loss_pips: np.
         risk_amount = balance * (risk / 100)
         pip_value = pip_values[symbol]
         lot_size =  risk_amount / (stop_loss_pips * pip_value)
-        
-        return (balance * risk) / stop_loss_pips
+
+        return lot_size
 
     except Exception as e:
         displayError(e)
