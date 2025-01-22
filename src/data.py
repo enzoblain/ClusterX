@@ -9,9 +9,9 @@ import pandas as pd
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-def saveDataFrameToCsv(symbol: str = None, interval: str = None, filename: str = None, dataframe: pd.DataFrame = None) -> str:
-    if symbol is None or interval is None or filename is None or dataframe is None:
-        displayError("symbol, interval, and dataframe must be provided")
+def saveDataFrameToCsv(symbol: str = None, interval: str = None, filename: str = None, dataframe: pd.DataFrame = None, index: str = None) -> str:
+    if symbol is None or interval is None or filename is None or dataframe.empty or index is None:
+        displayError("symbol, interval, dataframe and index must be provided")
     
     symbol = delNonAlphaChars(symbol)
     folder_path = f"data/{symbol}"
@@ -36,7 +36,7 @@ def saveDataFrameToCsv(symbol: str = None, interval: str = None, filename: str =
             csv_data = getDataFrameFromCsv(filepath)
 
             combined_dataFrame = pd.concat([csv_data, dataframe])
-            combined_dataFrame = combined_dataFrame[~combined_dataFrame['datetime'].duplicated(keep='last')]
+            combined_dataFrame = combined_dataFrame[~combined_dataFrame[index].duplicated(keep='last')]
             combined_dataFrame = combined_dataFrame.reset_index(drop=True)
 
             os.remove(filepath)
@@ -82,20 +82,24 @@ def getDataFromTwelveDataAPI(api_key: str = None, symbol: str = None, startDate:
 
     return data
 
-def getDataFrameFromCsv(filepath: str = None, index: str = None) -> pd.DataFrame:
-    if filepath is None:
+def getDataFrameFromCsv(filepath: str = None, returnNone: bool = False) -> pd.DataFrame:
+    if filepath is None:   
         displayError("File path must be provided")
+
     
     if not os.path.exists(filepath):
+        if returnNone:
+            return pd.DataFrame()
+        
         displayError(f"File {filepath} not found")
 
     try:
         data = pd.read_csv(filepath, index_col=0)
 
+        if 'datetime' in data.columns:
+            data['datetime'] = pd.to_datetime(data['datetime'])
+
     except Exception as e:
         displayError(e)
-
-    if index:
-        return data.set_index(index)
     
     return data

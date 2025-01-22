@@ -3,6 +3,6 @@
         "Name": "Twelve Data Api",
         "API url": "https://api.twelvedata.com/time_series"
     },
-    "Symbol": "EUR/USD",
+    "Symbol": "EURUSD",
     "Environment": "test"
 }
