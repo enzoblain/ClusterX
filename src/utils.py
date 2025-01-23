@@ -59,19 +59,16 @@ def getFromApi(url: str = None, params: dict = None, headers: dict = None) -> di
 def delNonAlphaChars(string: str) -> str:
     return ''.join(e for e in string if e.isalnum())
 
-def isInTimeRange(time: str, start: str, end: str) -> bool:
+def isInTimeRange(time: pd.Timestamp, start: str, end: str) -> bool:
     try:
-        time_obj = time
-        start_obj = datetime.strptime(start, "%H:%M")
-        end_obj = datetime.strptime(end, "%H:%M")
+        current_time = time.time()
+        start_time = datetime.strptime(start, "%H:%M").time()
+        end_time = datetime.strptime(end, "%H:%M").time()
 
-        start_obj = start_obj.replace(year=time_obj.year, month=time_obj.month, day=time_obj.day)
-        end_obj = end_obj.replace(year=time_obj.year, month=time_obj.month, day=time_obj.day)
+        if end_time < start_time: # if the range crosses midnight
+            return current_time >= start_time or current_time <= end_time
 
-        if end_obj < start_obj: # Handle the case where the session crosses midnight
-            return time_obj >= start_obj or time_obj <= end_obj
-
-        return start_obj <= time_obj <= end_obj
+        return start_time <= current_time <= end_time # standard case
     
     except ValueError:
         displayError("Invalid time format")
