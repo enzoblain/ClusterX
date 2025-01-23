@@ -71,13 +71,13 @@ def getTrendsAndOrderBlocks(candles: pd.DataFrame, trends: pd.DataFrame = None, 
 
             if current_direction == last_trend["direction"]:  # Same direction as the trend
                 if subtrend:
-                    if subtrend["direction"] == "bullish":  # Bullish trend and subtrend 
+                    if subtrend["direction"] == "bullish":  # Bullish subtrend
                         if current_close < subtrend["low"]:
                             last_trend["high"] = subtrend["high"]  # Update trend high
                             subtrend = None
                         else:
                             subtrend["high"] = max(subtrend["high"], current_high)
-                    else:  # Bearish trend and subtrend
+                    else:  # Bearish subtrend
                         if current_close > subtrend["high"]:
                             last_trend["low"] = subtrend["low"]  # Update trend low
                             subtrend = None
