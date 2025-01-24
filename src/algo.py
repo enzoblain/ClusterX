@@ -1,7 +1,7 @@
 # Local imports
 from src.log import addLog, displayError
 from src.data import getDataFromTwelveDataAPI, getDataFrameFromCsv, saveDataFrameToCsv
-from src.structures import getCandlesDirection, getTrendsAndOrderBlocks, getSessions, findFairValueGaps
+from src.structures import getCandlesDirection, getTrends, getSessions, findFairValueGaps
 from src.utils import getValueFromConfigFile, getFromEnv
 
 # External imports
@@ -46,18 +46,25 @@ async def algo(discord_bot: object):
         trends = getDataFrameFromCsv(f'data/{symbol}/{interval}/trends.csv', returnNone=True)
 
         addLog(f"Getting structures data")
-        structures = getDataFrameFromCsv(f'data/{symbol}/{interval}/structures.csv', returnNone=True)
+        two_dimensions_structures = getDataFrameFromCsv(f'data/{symbol}/{interval}/2dStructures.csv', returnNone=True)
+        one_dimension_structures = getDataFrameFromCsv(f'data/{symbol}/{interval}/1dStructures.csv', returnNone=True)
 
-        if structures.empty:
-            addLog("No structures data found")
+        if two_dimensions_structures.empty:
+            addLog("No 2d structures data found")
             order_blocks = pd.DataFrame()
             fair_value_gaps = pd.DataFrame()
         else: 
-            order_blocks = structures[structures['type'] == 'Order Block']
-            fair_value_gaps = structures[structures['type'] == 'Fair Value Gap']
+            order_blocks = two_dimensions_structures[two_dimensions_structures['type'] == 'Order Block']
+            fair_value_gaps = two_dimensions_structures[two_dimensions_structures['type'] == 'Fair Value Gap']
+
+        if one_dimension_structures.empty:
+            addLog("No 1d structures data found")
+        else:
+            addLog("1d structures data found")
+
         
         addLog(f"Defining the trends and the order blocks in market data")
-        trends, order_blocks = getTrendsAndOrderBlocks(candles=candles, trends=trends, order_blocks=order_blocks)
+        trends, order_blocks, breaks_of_structure, changes_of_character = getTrends(candles=candles, trends=trends, order_blocks=order_blocks, breaks_of_structure=one_dimension_structures, changes_of_character=one_dimension_structures)
 
         addLog(f"Saving trends data to CSV")
         saveDataFrameToCsv(symbol, interval, 'trends', trends, 'start')
@@ -74,12 +81,40 @@ async def algo(discord_bot: object):
         addLog(f"Searching for fair value gaps in market data")
         fair_value_gaps = findFairValueGaps(candles, fair_value_gaps)
 
-        fair_value_gaps['datetime'] = pd.to_datetime(fair_value_gaps['datetime'])
-        order_blocks['datetime'] = pd.to_datetime(order_blocks['datetime'])
+        one_dimension_structures_types = [breaks_of_structure, changes_of_character]
+        one_dimension_structures_not_empty = []
 
-        structures = pd.concat([order_blocks, fair_value_gaps], ignore_index=True)
-        structures.sort_values(by='datetime', inplace=True)
-        structures.reset_index(drop=True, inplace=True)
+        for one_dimension_structure_type in one_dimension_structures_types:
+            if not one_dimension_structure_type.empty:
+                one_dimension_structure_type['datetime'] = pd.to_datetime(one_dimension_structure_type['datetime'])
+                one_dimension_structures_not_empty.append(one_dimension_structure_type)
 
-        addLog(f"Saving structures data to CSV")
-        saveDataFrameToCsv(symbol, interval, 'structures', structures, 'datetime')
+        if one_dimension_structures_not_empty:
+            one_dimension_structures = pd.concat(one_dimension_structures_not_empty, ignore_index=True)
+            one_dimension_structures.sort_values(by='datetime', inplace=True)
+            one_dimension_structures.reset_index(drop=True, inplace=True)
+
+            addLog(f"Saving 1d structures data to CSV")
+            saveDataFrameToCsv(symbol, interval, '1dStructures', one_dimension_structures, 'datetime')
+        
+        else:
+            addLog("None new 1d structures found")
+
+        two_dimensions_structures_types = [order_blocks, fair_value_gaps]
+        two_dimensions_structures_not_empty = []
+
+        for two_dimensions_structure_type in two_dimensions_structures_types:
+            if not two_dimensions_structure_type.empty:
+                two_dimensions_structure_type['datetime'] = pd.to_datetime(two_dimensions_structure_type['datetime'])
+                two_dimensions_structures_not_empty.append(two_dimensions_structure_type)            
+
+        if two_dimensions_structures_not_empty:
+            two_dimensions_structures = pd.concat(two_dimensions_structures_not_empty, ignore_index=True)
+            two_dimensions_structures.sort_values(by='datetime', inplace=True)
+            two_dimensions_structures.reset_index(drop=True, inplace=True)
+
+            addLog(f"Saving 2d structures data to CSV")
+            saveDataFrameToCsv(symbol, interval, '2dStructures', two_dimensions_structures, 'datetime')
+
+        else:
+            addLog("None new 2d structures found")

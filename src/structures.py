@@ -26,7 +26,10 @@ def getCandlesDirection(candles: pd.DataFrame) -> pd.DataFrame:
 #            TRENDS & ORDER BLOCKS           #
 ##############################################
 
-def getTrendsAndOrderBlocks(candles: pd.DataFrame, trends: pd.DataFrame = None, order_blocks: pd.DataFrame = None) -> Tuple[pd.DataFrame]:
+from typing import Tuple
+import pandas as pd
+
+def getTrends(candles: pd.DataFrame, trends: pd.DataFrame = None, order_blocks: pd.DataFrame = None, breaks_of_structure: pd.DataFrame = None, changes_of_character: pd.DataFrame = None) -> Tuple[pd.DataFrame]:
     if candles.empty:
         displayError("Candles DataFrame is empty")
     
@@ -34,6 +37,16 @@ def getTrendsAndOrderBlocks(candles: pd.DataFrame, trends: pd.DataFrame = None, 
         order_blocks = []
     else:
         order_blocks = order_blocks.to_dict("records")
+
+    if breaks_of_structure.empty:
+        breaks_of_structure = []
+    else:
+        breaks_of_structure = breaks_of_structure.to_dict("records")
+
+    if changes_of_character.empty:
+        changes_of_character = []
+    else:
+        changes_of_character = changes_of_character.to_dict("records")
 
     if not trends.empty:  # If old trends are provided
         trends = trends.to_dict("records")
@@ -73,12 +86,27 @@ def getTrendsAndOrderBlocks(candles: pd.DataFrame, trends: pd.DataFrame = None, 
                 if subtrend:
                     if subtrend["direction"] == "bullish":  # Bullish subtrend
                         if current_close < subtrend["low"]:
+                            breaks_of_structure.append({
+                                "datetime": candles.iloc[i]["datetime"],
+                                "type": "Break of Structure",
+                                "direction": "Bearish",
+                                "price": subtrend["low"]
+                            })
+
                             last_trend["high"] = subtrend["high"]  # Update trend high
+
                             subtrend = None
                         else:
                             subtrend["high"] = max(subtrend["high"], current_high)
                     else:  # Bearish subtrend
                         if current_close > subtrend["high"]:
+                            breaks_of_structure.append({
+                                "datetime": candles.iloc[i]["datetime"],
+                                "type": "Break of Structure",
+                                "direction": "Bullish",
+                                "price": subtrend["high"]
+                            })
+
                             last_trend["low"] = subtrend["low"]  # Update trend low
                             subtrend = None
                         else:
@@ -93,6 +121,7 @@ def getTrendsAndOrderBlocks(candles: pd.DataFrame, trends: pd.DataFrame = None, 
 
                     if subtrend["direction"] == "bullish" and current_close > last_trend["high"]: # Bullish trend and bullish subtrend
                         last_trend["end"] = subtrend['start']
+
                         trends.append({
                             "direction": current_direction,
                             "start": subtrend['start'],
@@ -107,12 +136,20 @@ def getTrendsAndOrderBlocks(candles: pd.DataFrame, trends: pd.DataFrame = None, 
                             "direction": last_trend["direction"],
                             "high": last_trend["high"],
                             "low": last_trend["low"],
+                        })
+
+                        changes_of_character.append({
+                            "datetime": last_trend["end"],
+                            "type": "Change of Character",
+                            "direction": "Bullish",
+                            "price": last_trend["high"],
                         })
 
                         i = subtrend_start + 1
                         subtrend = None
                     elif subtrend["direction"] == "bearish" and current_close < last_trend["low"]: # Bearish trend and bearish subtrend
                         last_trend["end"] = subtrend['start']
+
                         trends.append({
                             "direction": current_direction,
                             "start": subtrend['start'],
@@ -127,6 +164,13 @@ def getTrendsAndOrderBlocks(candles: pd.DataFrame, trends: pd.DataFrame = None, 
                             "direction": last_trend["direction"],
                             "high": last_trend["high"],
                             "low": last_trend["low"],
+                        })
+
+                        changes_of_character.append({
+                            "datetime": last_trend["end"],
+                            "type": "Change of Character",
+                            "direction": "Bearish",
+                            "price": last_trend["low"],
                         })
 
                         i = subtrend_start + 1
@@ -149,7 +193,8 @@ def getTrendsAndOrderBlocks(candles: pd.DataFrame, trends: pd.DataFrame = None, 
     except Exception as e:
         displayError(e)
 
-    return pd.DataFrame(trends), pd.DataFrame(order_blocks)
+    return pd.DataFrame(trends), pd.DataFrame(order_blocks), pd.DataFrame(breaks_of_structure), pd.DataFrame(changes_of_character)
+
 
 ##############################################
 #                 SESSIONS                   #
