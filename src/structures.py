@@ -81,6 +81,8 @@ def getTrends(candles: pd.DataFrame, trends: pd.DataFrame = None, order_blocks: 
             current_high = highs.iloc[i]
 
             last_trend = trends[-1]
+            last_trend_high_datetime = trends[-1]["start"]
+            last_trend_low_datetime = trends[-1]["start"]
 
             if current_direction == last_trend["direction"]:  # Same direction as the trend
                 if subtrend:
@@ -90,6 +92,7 @@ def getTrends(candles: pd.DataFrame, trends: pd.DataFrame = None, order_blocks: 
                                 "datetime": candles.iloc[i]["datetime"],
                                 "type": "Break of Structure",
                                 "direction": "Bearish",
+                                "reference": subtrend["start"],
                                 "price": subtrend["low"]
                             })
 
@@ -104,6 +107,7 @@ def getTrends(candles: pd.DataFrame, trends: pd.DataFrame = None, order_blocks: 
                                 "datetime": candles.iloc[i]["datetime"],
                                 "type": "Break of Structure",
                                 "direction": "Bullish",
+                                "reference": subtrend["start"],
                                 "price": subtrend["high"]
                             })
 
@@ -112,8 +116,14 @@ def getTrends(candles: pd.DataFrame, trends: pd.DataFrame = None, order_blocks: 
                         else:
                             subtrend["low"] = min(subtrend["low"], current_low)
                 else: # No subtrend
-                    last_trend["low"] = min(last_trend["low"], current_low)
-                    last_trend["high"] = max(last_trend["high"], current_high)
+                    if last_trend['low'] > current_low:
+                        last_trend['low'] = current_low
+                        last_trend_low_datetime = candles.iloc[i]["datetime"]
+                    
+                    if last_trend['high'] < current_high:
+                        last_trend['high'] = current_high
+                        last_trend_high_datetime = candles.iloc[i]["datetime"]
+
                 i += 1
             else:  # Opposite direction
                 if subtrend: # If there is an active subtrend
@@ -142,6 +152,7 @@ def getTrends(candles: pd.DataFrame, trends: pd.DataFrame = None, order_blocks: 
                             "datetime": last_trend["end"],
                             "type": "Change of Character",
                             "direction": "Bullish",
+                            "reference": last_trend_high_datetime,
                             "price": last_trend["high"],
                         })
 
@@ -170,6 +181,7 @@ def getTrends(candles: pd.DataFrame, trends: pd.DataFrame = None, order_blocks: 
                             "datetime": last_trend["end"],
                             "type": "Change of Character",
                             "direction": "Bearish",
+                            "reference": last_trend_low_datetime,
                             "price": last_trend["low"],
                         })
 
