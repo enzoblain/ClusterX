@@ -59,12 +59,17 @@ async def algo(discord_bot: object):
 
         if one_dimension_structures.empty:
             addLog("No 1d structures data found")
+            breaks_of_structure = pd.DataFrame()
+            changes_of_character = pd.DataFrame()
+            relative_highs_lows = pd.DataFrame()
         else:
-            addLog("1d structures data found")
+            breaks_of_structure = one_dimension_structures[one_dimension_structures['type'] == 'Break of Structure']
+            changes_of_character = one_dimension_structures[one_dimension_structures['type'] == 'Change of Character']
+            relative_highs_lows = one_dimension_structures[one_dimension_structures['type'] == 'Relative High/Low']
 
         
         addLog(f"Defining the trends and the order blocks in market data")
-        trends, order_blocks, breaks_of_structure, changes_of_character = getTrends(candles=candles, trends=trends, order_blocks=order_blocks, breaks_of_structure=one_dimension_structures, changes_of_character=one_dimension_structures)
+        trends, order_blocks, breaks_of_structure, changes_of_character, relative_highs_lows = getTrends(candles=candles, trends=trends, order_blocks=order_blocks, breaks_of_structure=one_dimension_structures, changes_of_character=one_dimension_structures, relative_highs_lows=relative_highs_lows)
 
         addLog(f"Saving trends data to CSV")
         saveDataFrameToCsv(symbol, interval, 'trends', trends, 'start')
@@ -81,7 +86,7 @@ async def algo(discord_bot: object):
         addLog(f"Searching for fair value gaps in market data")
         fair_value_gaps = findFairValueGaps(candles, fair_value_gaps)
 
-        one_dimension_structures_types = [breaks_of_structure, changes_of_character]
+        one_dimension_structures_types = [breaks_of_structure, changes_of_character, relative_highs_lows]
         one_dimension_structures_not_empty = []
 
         for one_dimension_structure_type in one_dimension_structures_types:

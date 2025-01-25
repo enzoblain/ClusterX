@@ -29,7 +29,7 @@ def getCandlesDirection(candles: pd.DataFrame) -> pd.DataFrame:
 from typing import Tuple
 import pandas as pd
 
-def getTrends(candles: pd.DataFrame, trends: pd.DataFrame = None, order_blocks: pd.DataFrame = None, breaks_of_structure: pd.DataFrame = None, changes_of_character: pd.DataFrame = None) -> Tuple[pd.DataFrame]:
+def getTrends(candles: pd.DataFrame, trends: pd.DataFrame = None, order_blocks: pd.DataFrame = None, breaks_of_structure: pd.DataFrame = None, changes_of_character: pd.DataFrame = None, relative_highs_lows: pd.DataFrame = None) -> Tuple[pd.DataFrame]:
     if candles.empty:
         displayError("Candles DataFrame is empty")
     
@@ -47,6 +47,11 @@ def getTrends(candles: pd.DataFrame, trends: pd.DataFrame = None, order_blocks: 
         changes_of_character = []
     else:
         changes_of_character = changes_of_character.to_dict("records")
+
+    if relative_highs_lows.empty:
+        relative_highs_lows = []
+    else:
+        relative_highs_lows = relative_highs_lows.to_dict("records")
 
     if not trends.empty:  # If old trends are provided
         trends = trends.to_dict("records")
@@ -96,11 +101,21 @@ def getTrends(candles: pd.DataFrame, trends: pd.DataFrame = None, order_blocks: 
                                 "price": subtrend["low"]
                             })
 
+                            relative_highs_lows.append({
+                                "datetime": subtrend_relative_high_datetime,
+                                "type": "Relative High/Low",
+                                "direction": "High",
+                                "price": subtrend["high"]
+                            })
+
                             last_trend["high"] = subtrend["high"]  # Update trend high
 
                             subtrend = None
                         else:
-                            subtrend["high"] = max(subtrend["high"], current_high)
+                            if current_high > subtrend["high"]:
+                                subtrend_relative_high_datetime = candles.iloc[i]["datetime"]
+                                subtrend["high"] = current_high
+
                     else:  # Bearish subtrend
                         if current_close > subtrend["high"]:
                             breaks_of_structure.append({
@@ -111,10 +126,20 @@ def getTrends(candles: pd.DataFrame, trends: pd.DataFrame = None, order_blocks: 
                                 "price": subtrend["high"]
                             })
 
+                            relative_highs_lows.append({
+                                "datetime": subtrend_relative_low_datetime,
+                                "type": "Relative High/Low",
+                                "direction": "Low",
+                                "price": subtrend["low"]
+                            })
+
                             last_trend["low"] = subtrend["low"]  # Update trend low
                             subtrend = None
                         else:
-                            subtrend["low"] = min(subtrend["low"], current_low)
+                            if current_low < subtrend["low"]:
+                                subtrend_relative_low_datetime = candles.iloc[i]["datetime"]
+                                subtrend["low"] = current_low
+
                 else: # No subtrend
                     if last_trend['low'] > current_low:
                         last_trend['low'] = current_low
@@ -156,6 +181,13 @@ def getTrends(candles: pd.DataFrame, trends: pd.DataFrame = None, order_blocks: 
                             "price": last_trend["high"],
                         })
 
+                        relative_highs_lows.append({
+                            "datetime": subtrend_relative_low_datetime,
+                            "type": "Relative High/Low",
+                            "direction": "Low",
+                            "price": last_trend["low"]
+                        })
+
                         i = subtrend_start + 1
                         subtrend = None
                     elif subtrend["direction"] == "bearish" and current_close < last_trend["low"]: # Bearish trend and bearish subtrend
@@ -185,13 +217,25 @@ def getTrends(candles: pd.DataFrame, trends: pd.DataFrame = None, order_blocks: 
                             "price": last_trend["low"],
                         })
 
+                        relative_highs_lows.append({
+                            "datetime": subtrend_relative_high_datetime,
+                            "type": "Relative High/Low",
+                            "direction": "High",
+                            "price": last_trend["high"]
+                        })
+
                         i = subtrend_start + 1
                         subtrend = None
                     else: # Opposite direction subtrend
                         if subtrend["direction"] == "bullish": # Bullish trend and bearish subtrend
-                            subtrend["high"] = max(subtrend["high"], current_high) # Update subtrend high
+                            if current_high > subtrend["high"]:
+                                subtrend_relative_high_datetime = candles.iloc[i]["datetime"]
+                                subtrend["high"] = current_high
+                        
                         else: # Bearish trend and bullish subtrend
-                            subtrend["low"] = min(subtrend["low"], current_low) # Update subtrend low
+                            if current_low < subtrend["low"]:
+                                subtrend_relative_low_datetime = candles.iloc[i]["datetime"]
+                                subtrend["low"] = current_low
                         i += 1
                 else: # No subtrend
                     subtrend = {
@@ -202,10 +246,13 @@ def getTrends(candles: pd.DataFrame, trends: pd.DataFrame = None, order_blocks: 
                         "end": None
                     }
 
+                    subtrend_relative_low_datetime = candles.iloc[i]["datetime"]
+                    subtrend_relative_high_datetime = candles.iloc[i]["datetime"]
+
     except Exception as e:
         displayError(e)
 
-    return pd.DataFrame(trends), pd.DataFrame(order_blocks), pd.DataFrame(breaks_of_structure), pd.DataFrame(changes_of_character)
+    return pd.DataFrame(trends), pd.DataFrame(order_blocks), pd.DataFrame(breaks_of_structure), pd.DataFrame(changes_of_character), pd.DataFrame(relative_highs_lows)
 
 
 ##############################################
