@@ -75,7 +75,7 @@ def getDataFromTwelveDataAPI(api_key: str = None, symbol: str = None, startDate:
         data = pd.DataFrame(data['values'])
         data = data.reindex(index=data.index[::-1], ) # Old data first
         data = data.reset_index(drop=True)
-        data = data[['datetime', 'open', 'high', 'low', 'close']]
+        data = data[['datetime', 'open', 'high', 'low', 'close', 'volume']]
     
     except Exception as e:
         displayError(e)
