@@ -68,7 +68,7 @@ async def algo(discord_bot: object):
             relative_highs_lows = one_dimension_structures[one_dimension_structures['type'] == 'Relative High/Low']
 
         
-        addLog(f"Defining the trends and the order blocks in market data")
+        addLog(f"Defining the trends in market data")
         trends, order_blocks, breaks_of_structure, changes_of_character, relative_highs_lows = getTrends(candles=candles, trends=trends, order_blocks=order_blocks, breaks_of_structure=one_dimension_structures, changes_of_character=one_dimension_structures, relative_highs_lows=relative_highs_lows)
 
         addLog(f"Saving trends data to CSV")
