@@ -50,6 +50,9 @@ def getDataFromTwelveDataApi(symbol: str = None, interval: str = None, startDate
     data = data.reset_index(drop=True)
     data = data[['datetime', 'open', 'high', 'low', 'close']]
 
+    data['datetime'] = pd.to_datetime(data['datetime'])
+    data.dropna(inplace=True) # Remove NaN values
+
     print(f"Received data from Twelve Data: {data.shape[0]} rows for symbol {symbol} and interval {interval}")
 
     return data

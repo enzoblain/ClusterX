@@ -22,6 +22,7 @@ def main():
         print("Error loading environment variables : ", e)
 
     print("ClusterX is running...")
+    
     while True:
         algorithm()
 
