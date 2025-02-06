@@ -31,3 +31,6 @@ def getFromConfigFile(*keys: str) -> str:
            raise Exception(f'Key "{key}" not found in file')
 
     return data
+
+def delNonAlphaChars(string: str) -> str:
+    return ''.join(e for e in string if e.isalnum()) # Keep only alphanumeric characters

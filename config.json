@@ -5,5 +5,5 @@
         }
     },
     "Symbol": "EUR/USD",
-    "Environment": "test"
+    "Environment": "dev"
 }
