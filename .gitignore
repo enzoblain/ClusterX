@@ -15,6 +15,7 @@ env/
 venv/
 ENV/
 .venv/
+.env
 
 # Logs and temporary files
 *.log
