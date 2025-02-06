@@ -30,6 +30,7 @@ ENV/
 *.vs/
 *.project
 *.cproject
+__pycache__/
 
 # Test output
 .coverage
