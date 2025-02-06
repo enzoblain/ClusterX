@@ -1,4 +1,4 @@
-from src.utils import getFromEnv
+from src.utils import getFromConfigFile, getFromEnv
 
 import requests
 import pandas as pd
@@ -23,7 +23,7 @@ def getDataFromTwelveDataApi(symbol: str = None, interval: str = None, startDate
     
     # API informations
     api_key = getFromEnv("TWELVE_DATA_API_KEY")
-    api_endpoint = "https://api.twelvedata.com/time_series"
+    api_endpoint = getFromConfigFile("APIS", "Twelve Data Api", "Endpoint")
 
     # Set parameters for the request
     params = {
