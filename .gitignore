@@ -1,39 +1,20 @@
-# Compiled object files
-*.o
-*.obj
+# Compiled Python files
+*.pyc
+*.pyo
+*.pyd
 
-# Executable files
-*.exe
-*.out
-*.app
+# Python distribution and packaging
+*.egg
+*.egg-info
+dist/
+build/
+*.whl
 
-# Shared and static libraries
-*.so
-*.a
-*.lib
-*.dll
-
-# Debugging and profiling files
-*.dSYM/
-*.gcda
-*.gcno
-*.gcov
-
-# Build artifacts and intermediate files
-/build/
-/bin/
-/lib/
-/dist/
-/CMakeCache.txt
-/CMakeFiles/
-
-# Dependency management
-/deps/
-/vendor/
-/*.d
-
-# Makefile automatic dependencies
-*.d
+# Virtual environment directories
+env/
+venv/
+ENV/
+.venv/
 
 # Logs and temporary files
 *.log
@@ -50,13 +31,12 @@
 *.project
 *.cproject
 
-# Generated configuration files
-config.h
-config.mk
-
+# Test output
+.coverage
+nosetests.xml
+coverage.xml
+*.cover
+*.log
 
 # macOS
 *.DS_Store
-
-# Environment configuration
-include/config.c
