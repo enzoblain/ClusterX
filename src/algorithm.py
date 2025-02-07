@@ -13,12 +13,14 @@ def algorithm():
     else:
         intervals = ["1min"]
 
-    candles = {} # Store candles for each interval
+    data = {} # Store candles for each interval
 
     symbol = getFromConfigFile("Symbol")
 
     # Get data for each interval
     for interval in intervals: 
+        data[interval] = {} # Prepare the data structure
+
         # Define the path to save the data
         symbolpath = delNonAlphaChars(symbol) # Remove non-alphanumeric characters to make a valid filename
         candles_path = f"data/{symbolpath}/{interval}/candles.csv"
@@ -28,12 +30,14 @@ def algorithm():
         if env == "prod":
             new_data = getDataFromTwelveDataApi(symbol=symbol, interval=interval)
 
-            data = combineDataFrames([candles_old_data, new_data], 'datetime')
+            candle_data = combineDataFrames([candles_old_data, new_data], 'datetime')
 
             # Save the data to a CSV file
-            saveDataframetoCSV(data, candles_path)
+            saveDataframetoCSV(candle_data, candles_path)
 
         else:
-            data = candles_old_data
+            candle_data = candles_old_data
 
-        candles[interval] = data
+        data[interval]["candles"] = candle_data
+
+    print(data)
