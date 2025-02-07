@@ -1,5 +1,5 @@
 from src.api import getDataFromTwelveDataApi
-from src.data import saveDataframetoCSV
+from src.data import saveDataframetoCSV, getDataFrameFromCsv, combineDataFrames
 from src.utils import getFromConfigFile, delNonAlphaChars
 
 def algorithm():
@@ -19,11 +19,21 @@ def algorithm():
 
     # Get data for each interval
     for interval in intervals: 
-        candles[interval] = getDataFromTwelveDataApi(symbol=symbol, interval=interval)
-
         # Define the path to save the data
         symbolpath = delNonAlphaChars(symbol) # Remove non-alphanumeric characters to make a valid filename
-        filepath = f"data/{symbolpath}/{interval}/candles.csv"
+        candles_path = f"data/{symbolpath}/{interval}/candles.csv"
 
-        # Save the data to a CSV file
-        saveDataframetoCSV(candles[interval], filepath, 'datetime')
+        candles_old_data = getDataFrameFromCsv(candles_path)
+
+        if env == "prod":
+            new_data = getDataFromTwelveDataApi(symbol=symbol, interval=interval)
+
+            data = combineDataFrames([candles_old_data, new_data], 'datetime')
+
+            # Save the data to a CSV file
+            saveDataframetoCSV(data, candles_path)
+
+        else:
+            data = candles_old_data
+
+        candles[interval] = data
