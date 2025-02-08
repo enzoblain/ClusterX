@@ -1,7 +1,7 @@
 from src.api import getDataFromTwelveDataApi
 from src.data import saveDataframetoCSV, getDataFrameFromCsv, combineDataFrames
 from src.utils import getFromConfigFile, delNonAlphaChars
-from src.structures import getSessions
+from src.structures import getSessions, getCandlesDirection
 
 import pandas as pd
 
@@ -32,6 +32,7 @@ def algorithm():
 
         if env == "prod":
             new_data = getDataFromTwelveDataApi(symbol=symbol, interval=interval)
+            new_data = getCandlesDirection(candle_data) # Define if a candle is bullish or bearish
 
             candle_data = combineDataFrames([candles_old_data, new_data], 'datetime')
 

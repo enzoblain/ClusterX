@@ -2,6 +2,15 @@ from src.utils import isInTimeRange
 
 import pandas as pd
 
+def getCandlesDirection(candles: pd.DataFrame) -> pd.DataFrame:
+     # Create a new column 'direction' based on the close and open prices
+    candles['direction'] = candles.apply(
+        lambda row: 'bullish' if row['close'] > row['open'] else 'bearish', axis=1
+    )
+
+    
+    return candles
+
 def getSessions(last_session: str = None, candles: pd.DataFrame = pd.DataFrame()) -> pd.DataFrame:
     if candles.empty:
         raise Exception("Candles dataframe is empty")
