@@ -1,7 +1,7 @@
 from src.api import getDataFromTwelveDataApi
 from src.data import saveDataframetoCSV, getDataFrameFromCsv, combineDataFrames
 from src.utils import getFromConfigFile, delNonAlphaChars
-from src.structures import getSessions, getCandlesDirection
+from src.structures import getSessions, getCandlesDirection, getFVG
 
 import pandas as pd
 
@@ -32,7 +32,7 @@ def algorithm():
 
         if env == "prod":
             new_data = getDataFromTwelveDataApi(symbol=symbol, interval=interval)
-            new_data = getCandlesDirection(candle_data) # Define if a candle is bullish or bearish
+            new_data = getCandlesDirection(new_data) # Define if a candle is bullish or bearish
 
             candle_data = combineDataFrames([candles_old_data, new_data], 'datetime')
 
@@ -44,18 +44,37 @@ def algorithm():
 
         data[interval]["candles"] = candle_data
 
+        fvg_path = f"data/{symbolpath}/{interval}/fvg.csv"
+
+        fvg_old_data = getDataFrameFromCsv(fvg_path)
+
+        if not fvg_old_data.empty:
+            fvg_old_data['datetime'] = pd.to_datetime(fvg_old_data['datetime'])
+
+            last_fvg = fvg_old_data['datetime'].iloc[-1]
+        else:
+            last_fvg = None
+
+        new_fvg = getFVG(last_fvg, candle_data)
+
+        fvg_data = combineDataFrames([fvg_old_data, new_fvg], 'datetime')
+
+        # Save the data to a CSV file
+        saveDataframetoCSV(fvg_data, fvg_path)
+
     sessions_path = f"data/{symbolpath}/sessions.csv"
 
     sessions_old_data = getDataFrameFromCsv(sessions_path)
-    sessions_old_data['start'] = pd.to_datetime(sessions_old_data['start'])
-    sessions_old_data['end'] = pd.to_datetime(sessions_old_data['end'])
     
     if not sessions_old_data.empty:
+        sessions_old_data['start'] = pd.to_datetime(sessions_old_data['start'])
+        sessions_old_data['end'] = pd.to_datetime(sessions_old_data['end'])
+
         last_session = sessions_old_data['start'].iloc[-1]
     else:
         last_session = None
 
-    new_sessions = getSessions(last_session, candle_data)
+    new_sessions = getSessions(last_session, data["1min"]["candles"])
     
     sessions_data = combineDataFrames([sessions_old_data, new_sessions], 'start')
 

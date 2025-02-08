@@ -11,15 +11,22 @@ def getCandlesDirection(candles: pd.DataFrame) -> pd.DataFrame:
     
     return candles
 
-def getSessions(last_session: str = None, candles: pd.DataFrame = pd.DataFrame()) -> pd.DataFrame:
+def getSessions(last_session: int = None, candles: pd.DataFrame = pd.DataFrame()) -> pd.DataFrame:
     if candles.empty:
         raise Exception("Candles dataframe is empty")
 
-    last_session = pd.to_datetime("2025-02-04 19:23:00")
-    index = candles[candles['datetime'] == last_session].index
+    if last_session:
+        index = candles[candles['datetime'] == last_session].index.tolist()
 
-    if index.empty:
-        raise Exception("Last session not found in candles dataframe")
+        if index == []:
+            index = 0
+        else:
+            index = index[0]
+
+    else:
+        index = 0
+    
+    sessions = []
     
     sessions_time = [ # all times are in Sydney time
         {
@@ -44,8 +51,6 @@ def getSessions(last_session: str = None, candles: pd.DataFrame = pd.DataFrame()
         }
     ]
 
-    sessions = []
-
     for i in range (index, len(candles)):
         for session in sessions_time:
             if isInTimeRange(candles.iloc[i]['datetime'], session["start"], session["end"]):
@@ -66,7 +71,49 @@ def getSessions(last_session: str = None, candles: pd.DataFrame = pd.DataFrame()
                 break
 
     new_sessions = pd.DataFrame(sessions)
-    new_sessions['start'] = pd.to_datetime(new_sessions['start'])
-    new_sessions['end'] = pd.to_datetime(new_sessions['end'])
+    if not new_sessions.empty:
+        new_sessions['start'] = pd.to_datetime(new_sessions['start'])
+        new_sessions['end'] = pd.to_datetime(new_sessions['end'])
 
     return new_sessions
+
+def getFVG(last_fvg: int, candles) -> pd.DataFrame:
+    if candles.empty:
+        raise Exception("Candles dataframe is empty")
+
+    if last_fvg:
+        index = candles[candles['datetime'] == last_fvg].index.tolist()
+
+        if index == []:
+            index = 1
+        else:
+            index = index[0] + 1
+    else:
+        index = 1
+    
+    fvg = []
+        
+    for i in range(index, len(candles) - 1):
+        if candles.iloc[i - 1]["low"] > candles.iloc[i + 1]["high"]: # bearish gap
+            fvg.append({
+                "datetime": candles.iloc[i]['datetime'],
+                "type": "Fair Value Gap",
+                "direction": "bearish",
+                "high": candles.iloc[i -1]["low"],
+                "low": candles.iloc[i + 1]["high"]
+            })
+        elif candles.iloc[i - 1]["high"] < candles.iloc[i + 1]["low"]: # bullish gap
+            fvg.append({
+                "datetime": candles.iloc[i]['datetime'],
+                "type": "Fair Value Gap",
+                "direction": "bullish",
+                "high": candles.iloc[i + 1]["low"],
+                "low": candles.iloc[i - 1]["high"]       
+            })
+
+    new_fvg = pd.DataFrame(fvg)
+
+    if not new_fvg.empty:
+        new_fvg['datetime'] = pd.to_datetime(new_fvg['datetime'])
+
+    return new_fvg
