@@ -1,5 +1,7 @@
+from datetime import datetime
 import json
 import os
+import pandas as pd
 
 def getFromEnv(key: str) -> str:
     value = os.getenv(key)
@@ -34,3 +36,17 @@ def getFromConfigFile(*keys: str) -> str:
 
 def delNonAlphaChars(string: str) -> str:
     return ''.join(e for e in string if e.isalnum()) # Keep only alphanumeric characters
+
+def isInTimeRange(time: pd.Timestamp, start: str, end: str) -> bool:
+    try:
+        current_time = time.time()
+        start_time = datetime.strptime(start, "%H:%M").time()
+        end_time = datetime.strptime(end, "%H:%M").time()
+
+        if end_time < start_time: # if the range crosses midnight
+            return current_time >= start_time or current_time <= end_time
+
+        return start_time <= current_time <= end_time # standard case
+    
+    except ValueError:
+        print("Invalid time format")

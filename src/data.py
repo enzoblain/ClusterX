@@ -37,7 +37,7 @@ def getDataFrameFromCsv(filepath: str = None) -> pd.DataFrame:
         raise Exception("Filepath is required")
     
     if not os.path.exists(filepath):
-        raise Exception("File does not exist")
+        return pd.DataFrame()
 
     dataFrame = pd.read_csv(filepath, index_col=0)
 

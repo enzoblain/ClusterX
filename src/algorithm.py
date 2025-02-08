@@ -1,6 +1,9 @@
 from src.api import getDataFromTwelveDataApi
 from src.data import saveDataframetoCSV, getDataFrameFromCsv, combineDataFrames
 from src.utils import getFromConfigFile, delNonAlphaChars
+from src.structures import getSessions
+
+import pandas as pd
 
 def algorithm():
     env = getFromConfigFile("Environment")
@@ -40,4 +43,20 @@ def algorithm():
 
         data[interval]["candles"] = candle_data
 
-    print(data)
+    sessions_path = f"data/{symbolpath}/sessions.csv"
+
+    sessions_old_data = getDataFrameFromCsv(sessions_path)
+    sessions_old_data['start'] = pd.to_datetime(sessions_old_data['start'])
+    sessions_old_data['end'] = pd.to_datetime(sessions_old_data['end'])
+    
+    if not sessions_old_data.empty:
+        last_session = sessions_old_data['start'].iloc[-1]
+    else:
+        last_session = None
+
+    new_sessions = getSessions(last_session, candle_data)
+    
+    sessions_data = combineDataFrames([sessions_old_data, new_sessions], 'start')
+
+    # Save the data to a CSV file
+    saveDataframetoCSV(sessions_data, sessions_path)
