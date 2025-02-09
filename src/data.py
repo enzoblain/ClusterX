@@ -1,3 +1,7 @@
+from src.api import getDataFromTwelveDataApi
+from src.structures import getCandlesDirection, getFVG, getSessions
+from src.utils import delNonAlphaChars
+
 import pandas as pd
 
 import os
@@ -45,3 +49,126 @@ def getDataFrameFromCsv(filepath: str = None) -> pd.DataFrame:
         dataFrame['datetime'] = pd.to_datetime(dataFrame['datetime'])
     
     return dataFrame
+
+def loadOldData(env: str, symbol: str = None) -> dict:
+    if env not in ["dev", "prod"]:
+        raise Exception("Environment not supported")
+    
+    if env == "prod":
+        intervals = ["1min", "5min", "15min", "30min", "1h", "4h", "1day"] # List of intervals
+    else:
+        intervals = ["1min"]
+    
+    if not symbol:
+        raise Exception("Symbol is required")
+    
+    symbol_path = delNonAlphaChars(symbol) # Remove non-alphanumeric characters to make a valid filename
+
+    data = {} # Store candles for each interval
+
+    ############################
+    #        SESSIONS          #
+    ############################
+
+    sessions_path = f"data/{symbol_path}/sessions.csv"
+    sessions = getDataFrameFromCsv(sessions_path)
+
+    if not sessions.empty:
+        sessions['start'] = pd.to_datetime(sessions['start'])
+        sessions['end'] = pd.to_datetime(sessions['end'])
+
+    data["sessions"] = sessions
+
+    for interval in intervals:
+        data[interval] = {} # Prepare the data structure
+
+        ############################
+        #          CANDLES         #
+        ############################
+
+        candles_path = f"data/{symbol_path}/{interval}/candles.csv"
+        candles_data = getDataFrameFromCsv(candles_path)
+
+        data[interval]["candles"] = candles_data
+
+        ############################
+        #           FVG            #
+        ############################
+
+        fvg_path = f"data/{symbol_path}/{interval}/fvg.csv"
+        fvg_data = getDataFrameFromCsv(fvg_path)
+
+        data[interval]["fvg"] = fvg_data
+
+    return data
+
+def updateData(data: dict, env: str, symbol: str = None):
+    if env not in ["dev", "prod"]:
+        raise Exception("Environment not supported")
+    
+    if not symbol:
+        raise Exception("Symbol is required")
+    
+    symbol_path = delNonAlphaChars(symbol) # Remove non-alphanumeric characters to make a valid filename
+
+    if env == "dev":
+        return data
+    
+    intervals = ["1min", "5min", "15min", "30min", "1h", "4h", "1day"] # List of intervals
+
+    for interval in intervals:
+        ############################
+        #          CANDLES         #
+        ############################
+        old_candles = data[interval]["candles"]
+
+        new_candles = getDataFromTwelveDataApi(symbol=symbol, interval=interval)
+        new_candles = getCandlesDirection(new_candles)
+
+        if not old_candles.empty:
+            new_candles = combineDataFrames([old_candles, new_candles], 'datetime')
+
+        candles_path = f"data/{symbol_path}/{interval}/candles.csv"
+        saveDataframetoCSV(new_candles, candles_path)
+
+        data[interval]["candles"] = new_candles
+
+        ############################
+        #           FVG            #
+        ############################
+        old_fvg = data[interval]["fvg"]
+
+        if not old_fvg.empty:
+            last_fvg = old_fvg['datetime'].iloc[-1]
+        else:
+            last_fvg = None
+
+        new_fvg = getFVG(last_fvg, new_candles)
+        new_fvg = combineDataFrames([old_fvg, new_fvg], 'datetime')
+
+        fvg_path = f"data/{symbol_path}/{interval}/fvg.csv"
+        saveDataframetoCSV(new_fvg, fvg_path)
+
+        data[interval]["fvg"] = new_fvg
+
+    ############################
+    #        SESSIONS          #
+    ############################
+    old_sessions = data["sessions"]
+
+    if not old_sessions.empty:
+        last_session = old_sessions['end'].iloc[-1]
+    else:
+        last_session = None
+
+    candles = data["1min"]["candles"]
+
+    new_sessions = getSessions(last_session, candles)
+    new_sessions = combineDataFrames([old_sessions, new_sessions], 'start')
+
+    sessions_path = f"data/{symbol_path}/sessions.csv"
+    saveDataframetoCSV(new_sessions, sessions_path)
+
+    data["sessions"] = new_sessions
+
+    return data

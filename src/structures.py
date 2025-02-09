@@ -21,7 +21,7 @@ def getSessions(last_session: int = None, candles: pd.DataFrame = pd.DataFrame()
         if index == []:
             index = 0
         else:
-            index = index[0]
+            index = index[0] + 1 # Start from the next candle
 
     else:
         index = 0
