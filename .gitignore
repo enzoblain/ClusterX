@@ -1,44 +1,42 @@
-# Compiled Python files
-*.pyc
-*.pyo
-*.pyd
+# Fichiers compilés
+*.o
+*.obj
+*.so
+*.a
+*.out
+*.exe
+*.dll
+*.pdb
+*.idb
+*.lib
 
-# Python distribution and packaging
-*.egg
-*.egg-info
-dist/
+# Répertoires de build
 build/
-*.whl
+bin/
+obj/
 
-# Virtual environment directories
-env/
-venv/
-ENV/
-.venv/
-.env
-
-# Logs and temporary files
+# Fichiers temporaires
 *.log
 *.tmp
 *.swp
 *.swo
 *~
 
-# IDE and editor files
+# Fichiers d'éditeur
 .vscode/
 *.code-workspace
-*.idea/
-*.vs/
+.idea/
 *.project
 *.cproject
-__pycache__/
 
-# Test output
-.coverage
-nosetests.xml
-coverage.xml
-*.cover
-*.log
+# Fichiers de configuration de Visual Studio
+.vs/
+.vs2019/
+.vs2017/
 
-# macOS
-*.DS_Store
+# Fichiers spécifiques au système
+.DS_Store
+Thumbs.db
+
+# MacOS runnner (Enzo)
+build.sh
