@@ -2,6 +2,8 @@
 
 **ClusterX** is an advanced algorithmic trading bot built using **Python**. It applies the **Smart Money Concept (SMC)** strategy to analyze market conditions and execute trades based on key liquidity levels and market structure.
 
+This **branch** is specifically used for testing and experimenting with different trading strategies and code implementations. The actual trading algorithm runs in a more optimized language for better performance in live environments.
+
 ---
 
 ## Features
@@ -20,7 +22,7 @@ Before running **ClusterX**, make sure you have the following installed:
 - Required Python libraries (install via `pip`)
 
 Install the required libraries:
-```bash
+```
 pip install -r requirements.txt
 ```
 
@@ -28,36 +30,18 @@ pip install -r requirements.txt
 
 ### Installation
 1. Clone the repository:
-   ```bash
+   ```
    git clone https://github.com/enzoblain/ClusterX.git
    ```
 2. Navigate into the project folder:
-   ```bash
+   ```
    cd ClusterX-Python
    ```
 
----
-
-### Configuration
-1. **API Keys**: Configure your exchange API keys and other required credentials in the `config.py` file. Below is an example of how to structure it:
-   ```python
-   API_KEY = "your_api_key"
-   ```
-
----
-
 ### Running the Bot
 To start the bot and begin trading, run:
-```bash
-python ClusterX.py
 ```
-
----
-
-### Backtesting (not implemented yet)
-Before running the bot live, you can prepare for backtesting:
-```bash
-python ClusterX.py --backtest --data "data/your_data_folder" # This should contain different timeframes
+python ClusterX.py
 ```
 
 ---
@@ -83,7 +67,3 @@ Distributed under the MIT License. See `LICENSE` for more information.
 ---
 
 **ClusterX (Python Version)** is an ongoing project. Stay tuned for more features and improvements! 🚀
-
----
-
-You can copy the markdown above and the code into your repository. Let me know if you need further assistance! 🚀
