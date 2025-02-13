@@ -1,9 +1,0 @@
-{
-    "APIS": {
-        "Twelve Data Api": {
-            "Endpoint": "https://api.twelvedata.com/time_series"
-        }
-    },
-    "Symbol": "EUR/USD",
-    "Environment": "dev"
-}
