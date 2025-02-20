@@ -1,16 +1,26 @@
-#include "config.h"
 #include "candle.h"
-#include "system_operator.h"
+#include "utils.h"
 
-struct Candle* getCandles(char *symbol, char *interval, int limit) {
+// For the backtest / test of the strategy
+// Requires data in DATA directory
+int CANDLE_1MIN_LAST_INDEX = 0;
+
+// Function to initialize the candles array
+struct Candle* initCandles(int limit){
     struct Candle* candles = malloc(limit * sizeof(struct Candle));
 
     if (!candles) {
-        printf("Memory allocation failed\n");
+        perror("malloc failed");
 
-        exit(1);
+        return NULL;
     }
 
+    return candles;
+}
+
+// Function for backtesting or testing the strategy
+// Get the candles from the file instead of the API
+void addTestCandle(char *symbol, char *interval, int limit, struct Candle* candles) {
     // Get the entire file path
     char filepath[100];
     sprintf(filepath, "data/%s/%s/candles.csv", symbol, interval);
@@ -25,83 +35,75 @@ struct Candle* getCandles(char *symbol, char *interval, int limit) {
     }
 
     char line[256];
-    char *lines[1000];
     int lines_count = 0;
+
+    // To know where to stop reading the file (the first candle we don't have)
+    int max_index = CANDLE_1MIN_LAST_INDEX + 1;
+    struct Candle new_candle = {0};
 
     // Stock candles
     fgets(line, sizeof(line), file); // Remove header line
     while (fgets(line, sizeof(line), file) != NULL) {
-        lines[lines_count] = strdup(line);
+        if (lines_count == max_index){
+            // Get the candle data
+            sscanf(line, "%ld,%f,%f,%f,%f",
+                &new_candle.datetime,
+                &new_candle.high,
+                &new_candle.open,
+                &new_candle.close,
+                &new_candle.low);
+
+            setCandleDirection(&new_candle);
+
+            break;
+        }
 
         lines_count++;
     }
 
     fclose(file);
 
-    // Take only the last limit candles
-    int start_index = 0;
-    if (lines_count > limit) {
-        start_index = lines_count - limit;
+    if (new_candle.datetime == 0){
+        printf("No new candle found\n");
+
+        return;
     }
 
-    for (int i = 0; i < start_index; i++) {
-        free(lines[i]); // Free unused candle
-    }
-    
-    int index = 0; // Index for candles array
-    for (int i = start_index; i < lines_count; i++) {
-        time_t datetime = atol(strtok(lines[i], ",")); // First column
-        float high = atof(strtok(NULL, ",")); // Second column
-        float open = atof(strtok(NULL, ",")); // Third column
-        float close = atof(strtok(NULL, ",")); // Fourth column
-        float low = atof(strtok(NULL, ",")); // Fifth column
+    // Add the new candle to the array   
+    // If the array is full, remove the first element (shift left) and add the new candle to the end 
+    if (CANDLE_1MIN_LAST_INDEX >= limit){
+        int index = 0;
 
-        char *tmp = strtok(NULL, ",");
-        if (tmp != NULL) { // Check if there are more columns
-            printf("Error in csv file (line %d)\n", i + 2);
+        while (index < limit - 2){
+            candles[index] = candles[index + 1];
 
-            // Free memory before exiting
-            free(candles);
-            exit(1);
+            index++;
         }
 
-        candles[index] = (struct Candle){datetime, high, open, close, low};
-
-        free(lines[i]); // Free used candle
-        index++;
+        candles[limit - 1] = new_candle;
+            
+    }else{
+        candles[CANDLE_1MIN_LAST_INDEX] = new_candle;
     }
 
-    return candles;
+    // Increment the index
+    CANDLE_1MIN_LAST_INDEX++;
 }
 
-void saveCandles(struct Candle *candles, int length, char *symbol, char *interval) {
-    char filepath[100];
-    sprintf(filepath, "data/%s/%s", symbol, interval);
+// Function to set the direction
+void setCandleDirection(struct Candle *candle) {
+    // Bullish if going up, Bearish if going down
+    strcpy(candle->direction, (candle->open > candle->close) ? "Bearish" : "Bullish");
+}
 
-    // Create the directories if it does not exist
-    if (create_full_path(filepath) == -1) {
-        exit(1);
-    }   
-
-    // Get the entire file path (with the file name)
-    sprintf(filepath, "%s/candles.csv", filepath);
-
-    FILE *file = fopen(filepath, "w");
-
-    if (file == NULL) {
-        perror("Error while saving file: ");
-
-        exit(1);
-    }
-
-    fprintf(file, "datetime,high,open,close,low\n"); // Header
-    for (int i = 0; i < length; i++) {
-        if (candles[i].datetime == 0) { // Do not after the first empty candle
-            break;
-        }
-
-        fprintf(file, "%ld,%.6f,%.6f,%.6f,%.6f\n", candles[i].datetime, candles[i].high, candles[i].open, candles[i].close, candles[i].low);
-    }
-
-    fclose(file);
+// Function to print the candle (for debugging)
+void printCandle(struct Candle candle){
+    char *datetime = getStringDatetime(candle.datetime);
+    
+    printf("Candle datetime: %s\n", datetime);
+    printf("High: %.6f\n", candle.high);
+    printf("Open: %.6f\n", candle.open);
+    printf("Close: %.6f\n", candle.close);
+    printf("Low: %.6f\n", candle.low);
+    printf("Direction: %s\n", candle.direction);
 }

@@ -13,9 +13,13 @@ struct Candle {
     float open;
     float close;
     float low;
+    char direction[8];
 };
 
-struct Candle* getCandles(char *symbol, char *interval, int limit);
-void saveCandles(struct Candle *candles, int length, char *symbol, char *interval);
+struct Candle* initCandles(int limit);
+
+void addTestCandle(char *symbol, char *timeframe, int limit, struct Candle *candles);
+void setCandleDirection(struct Candle *candle);
+void printCandle(struct Candle candle);
 
 #endif

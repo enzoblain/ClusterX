@@ -5,4 +5,6 @@
 // In order to avoid memory overflow and optimize the memory usage / access time
 #define MAX_1MIN_ARRAY_LENGTH 200
 
+#define MAX_SESSION_ARRAY_LENGTH 100
+
 #endif
