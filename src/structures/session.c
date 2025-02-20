@@ -35,7 +35,7 @@ void getSessions(struct Session* sessions, struct Candle candle, int last_index)
 
     // If the session array is empty, find the correct one
     // Or if the session is not the same as the last one, find the correct one
-    if (session_count == 0 || !isInSession(datetime, last_session_index)) {
+    if (session_count == 0 || !isInThisSession(datetime, sessions[index])) {
         // Find the correct session
         // Sometimes the data may have holes or the market may have been closed
         // So we need to find the correct session instead of just using the next one
@@ -86,6 +86,12 @@ bool isInSession(time_t datetime, int session_index){
     }
 
     return (datetime >= ref_sessions[session_index].start && datetime <= ref_sessions[session_index].end);
+}
+
+// Function to check if the datetime is in the session
+// But this function is used to ckeck for a specific session (with datetime)
+bool isInThisSession(time_t datetime, struct Session session){
+    return (datetime >= session.start && datetime <= session.end);
 }
 
 // Print the session

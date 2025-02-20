@@ -34,6 +34,7 @@ struct Session{
 struct Session* initSessions(int limit);
 
 bool isInSession(time_t datetime, int index);
+bool isInThisSession(time_t datetime, struct Session session);
 
 void getSessions(struct Session *sessions, struct Candle candle, int last_index);
 void printSession(struct Session session);
