@@ -1,44 +1,23 @@
-# Rust / Cargo
-/target/
-**/*.rs.bk
-Cargo.lock
+node_modules
 
-# Tauri-specific
-/src-tauri/target/
-/src-tauri/.tauri-build
-/src-tauri/.tauri/
-/src-tauri/.cargo/
-/src-tauri/src/*.rs.bk
-/src-tauri/Cargo.lock
+# Output
+.output
+.vercel
+.netlify
+.wrangler
+/.svelte-kit
+/build
 
-# Node.js / Svelte
-/node_modules/
-/dist/
-/.svelte-kit/
-/.vite/
-
-# Redis
-/dump.rdb
-/appendonly.aof
-
-# Environment variables
-.env
-.env.local
-.env.development
-.env.production
-
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# OS / Editor specific
+# OS
 .DS_Store
 Thumbs.db
-.idea/
-.vscode/
-*.swp
-*.swo
 
-# Test code
-/python
+# Env
+.env
+.env.*
+!.env.example
+!.env.test
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
