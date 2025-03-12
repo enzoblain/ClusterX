@@ -31,7 +31,7 @@ const Dashboard: React.FC = () => {
 			) : (
 				<ul>
 					{data_folders.map((folder, index) => (
-					<li key={index}>{folder}</li> // Affiche chaque dossier
+						<li key={index}>{folder}</li> // Affiche chaque dossier
 					))}
 				</ul>
 			))}
