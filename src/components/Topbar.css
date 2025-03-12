@@ -1,0 +1,44 @@
+.topbar{
+    width: 100%;
+    height: 50px;
+    line-height: 50px;
+    background-color: #5E466A;
+    color: white;
+    display: flex;
+}
+
+.topbar .title{
+    margin: 0;
+    padding: 0;
+    margin-left: 10px;
+    font-size: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.topbar .title:hover{
+    cursor: pointer;
+}
+
+.topbar .links{
+    flex-grow: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.topbar .links .link{
+    transition-duration: 0.5s;
+    padding: 0 10px;
+    font-size: 15px;
+}
+
+.topbar .links .link.active{
+    background-color: #43364A;
+    color: #977390;
+}
+
+.topbar .links .link:hover{
+    cursor: pointer;
+    background-color: #513E5A;
+}
