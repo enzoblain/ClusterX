@@ -505,8 +505,6 @@ name = "clusterx"
 version = "0.1.0"
 dependencies = [
  "chrono",
- "lazy_static",
- "mutex",
  "serde",
  "serde_json",
  "tauri",
@@ -606,12 +604,6 @@ checksum = "a97769d94ddab943e4510d138150169a2758b5ef3eb191a9ee688de3e23ef7b3"
 dependencies = [
  "cfg-if",
 ]
-
-[[package]]
-name = "critical-section"
-version = "1.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "790eea4361631c5e7d22598ecd5723ff611904e3344ce8720784c93e3d83d40b"
 
 [[package]]
 name = "crossbeam-channel"
@@ -2085,22 +2077,6 @@ dependencies = [
  "thiserror 2.0.12",
  "windows-sys 0.59.0",
 ]
-
-[[package]]
-name = "mutex"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d28c89c319522a8ee27f304b1aeb4faebf652c6b7e04de8b263d715ca68a5c71"
-dependencies = [
- "critical-section",
- "mutex-traits",
-]
-
-[[package]]
-name = "mutex-traits"
-version = "1.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fd54cb762feb1788c74f5d3387983864d2365ca1819043d2addb76db80169102"
 
 [[package]]
 name = "ndk"
