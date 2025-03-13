@@ -4,8 +4,5 @@ mod config;
 mod utils;
 
 fn main() {
-    utils::log::init_log();
-    utils::log::display_log("INFO", "BACKEND", "Starting the app");
-
-    clusterx_lib::run()
+    clusterx_lib::run();
 }
