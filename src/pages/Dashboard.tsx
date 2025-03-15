@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
+import { open } from '@tauri-apps/plugin-dialog';
 import Loading from '../components/Loading';
 import './Dashboard.css';
 
@@ -13,25 +14,24 @@ const Dashboard: React.FC = () => {
 	const [folderNameError, setFolderNameError] = useState(false);
 
 	useEffect(() => {
-		const fetchDataFolders = async () => {
-
-			try{
-				const response = await invoke<string[]>('get_data_folders');
-				setData_folders(response);
-			} catch (error) {
-				console.error(error);
-			} finally {
-				setLoading(false);
-			}
-		}
 		fetchDataFolders();
 	}, []);
+
+	const fetchDataFolders = async () => {
+
+		try{
+			const response = await invoke<string[]>('get_data_folders');
+			setData_folders(response);
+		} catch (error) {
+			console.error(error);
+		} finally {
+			setLoading(false);
+		}
+	}
 
 	function editFolderName() {
 		setShowInput(false);
 		setFolderName('');
-
-		console.log(newFolderName, folderName);
 
 		if (newFolderName === folderName) {
 			return;
@@ -85,6 +85,22 @@ const Dashboard: React.FC = () => {
 		isFolderNameValid(folder);
 	}
 
+	async function selectFolder() {
+		const folder = await open({
+			directory: true,
+			multiple: false
+		});
+
+		if (folder) {
+			try {
+				await invoke<string>('copy_dataset', { source: folder });
+				fetchDataFolders();
+			} catch (error) {
+				console.error(error);
+			}
+		}
+	}
+
 	return (
 		<>
 			{loading ? (
@@ -111,6 +127,9 @@ const Dashboard: React.FC = () => {
 								<button onClick={() => displayInput(folder)}>Edit name</button>
 							</div>
 						))}
+					</div>
+					<div className='add-button'>
+						<button onClick={selectFolder}>Add a folder</button>
 					</div>
 				</>
 			)}

@@ -27,3 +27,6 @@ python
 
 # Logs 
 logs/log_*
+
+# Personal data
+public/data/*

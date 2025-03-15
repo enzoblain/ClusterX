@@ -5,6 +5,7 @@
 }
 
 .backtests {
+    line-height: 30px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -57,6 +58,24 @@
 }
 
 .rename-box button:hover {
+    cursor: pointer;
+    background-color: darkgrey;
+}
+
+.add-button {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.add-button button {
+    border: 1px solid #000;
+    border-radius: 5px;
+    height: 35px;
+}
+
+.add-button button:hover {
     cursor: pointer;
     background-color: darkgrey;
 }

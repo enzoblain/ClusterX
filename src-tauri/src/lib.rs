@@ -18,9 +18,11 @@ pub fn run() {
             }
         })
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![
             data::analyzer::get_data_folders,
             data::handler::rename_dataset,
+            data::handler::copy_dataset,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
