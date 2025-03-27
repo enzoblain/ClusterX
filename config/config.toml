@@ -1,0 +1,3 @@
+tickers = ["AAPL"]
+timerange = "1day"
+api_endpoint = "https://api.twelvedata.com/time_series"

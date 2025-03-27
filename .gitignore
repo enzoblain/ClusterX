@@ -1,1 +1,7 @@
 /target
+
+# Env
+env.toml
+
+# Perso
+useful.rs
