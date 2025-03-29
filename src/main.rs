@@ -1,80 +1,64 @@
+use clusterx::algorithm::main::algorithm;
+use clusterx::Candle;
 use clusterx::CONFIG;
-use clusterx::data::handler::{get_from_api, get_dataframe_from_csv, get_series_from_dataframe};
-use clusterx::data::analyzer::add_growing_percentage;
-use clusterx::utils::math::get_normal_distribution_bars;
+use clusterx::data::handler::{get_backtest_data, get_last_candle_from_api};
 
-use plotters::prelude::*;
+use chrono::NaiveDateTime;
+use polars::prelude::DataFrame;
+use std::collections::HashMap;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let (tickers, timerange) = {
+    let (env, mut tickers, timerange) = {
         let config = CONFIG.lock().unwrap();
-        (config.tickers.clone(), config.timerange.clone())
+        (config.env.clone(), config.tickers.clone(), config.timerange.clone())
     };
 
-    let start_date = "2020-01-01";
-    let end_date = "2024-31-12";
-    
-    if true == false {
-        for ticker in tickers {
-            get_from_api(&ticker, &timerange, Some(start_date), Some(end_date))?;
-        }
+    let mut data: HashMap<String, DataFrame> = HashMap::new(); // This will only be used in dev mode
+    if env == "dev" {
+        // In dev mode, we get the data from folders
+        data = get_backtest_data(&tickers)?;
+        tickers = data.keys().cloned().collect(); // Only keep the tickers that are in the data
     }
 
-    let mut df = get_dataframe_from_csv("example.csv")?;
-    add_growing_percentage(&mut df)?;
+    // Main algorithm
+    let mut _i = 0; // Counter for the row number
+    loop {
+        if tickers.is_empty() {
+            // If there are no tickers left, break the loop
+            break;
+        }
+        for ticker in tickers.clone() {
+            let current_candle: Candle;
 
-    let growing_percentage = get_series_from_dataframe(&df, "growing_percentage")?;
+            if env == "dev" {
+                let ticker_data = data.get(&ticker).unwrap();
 
-    df = get_normal_distribution_bars(growing_percentage);
+                if _i == ticker_data.height() - 1{
+                    // If we are at the end of the data, revmove the ticker from the list
+                    // Because no more data is available
+                    tickers.retain(|x| x != &ticker);
+                }
+                
+                // Get the i candle from the data
+                current_candle = Candle {
+                    datetime: NaiveDateTime::parse_from_str(&ticker_data.column("datetime").unwrap().get(_i).unwrap().to_string(), "%Y-%m-%d %H:%M:%S").unwrap(),
+                    open: ticker_data.column("open").unwrap().get(_i).unwrap().to_string().parse::<f64>().unwrap(),
+                    high: ticker_data.column("high").unwrap().get(_i).unwrap().to_string().parse::<f64>().unwrap(),
+                    low: ticker_data.column("low").unwrap().get(_i).unwrap().to_string().parse::<f64>().unwrap(),
+                    close: ticker_data.column("close").unwrap().get(_i).unwrap().to_string().parse::<f64>().unwrap(),
+                    volume: ticker_data.column("volume").unwrap().get(_i).unwrap().to_string().parse::<i64>().unwrap(),
+                };
 
-    let start_values = get_series_from_dataframe(&df, "start")?.f64().unwrap().into_no_null_iter().collect::<Vec<f64>>();
-    let end_values = get_series_from_dataframe(&df, "end")?.f64().unwrap().into_no_null_iter().collect::<Vec<f64>>();
-    let mean_values = get_series_from_dataframe(&df, "mean")?.f64().unwrap().into_no_null_iter().collect::<Vec<f64>>();
-    let bars = get_series_from_dataframe(&df, "bars")?.i32().unwrap().into_no_null_iter().collect::<Vec<i32>>();
-    let normalized_std = get_series_from_dataframe(&df, "Normal distribution")?.f64().unwrap().into_no_null_iter().collect::<Vec<f64>>();
+                _i += 1;
+            } else {
+                std::thread::sleep(std::time::Duration::from_secs(60)); // Sleep for 1 minute
+                current_candle = get_last_candle_from_api(&ticker, &timerange)?;
+            }
 
-    let max_bar = bars.iter().max().unwrap();
-
-    let root_area = BitMapBackend::new("histogram.png", (800, 600))
-        .into_drawing_area();
-    root_area.fill(&WHITE)?;
-
-    let mut chart = ChartBuilder::on(&root_area)
-        .caption("Growing Percentage Apple", ("sans-serif", 30))
-        .set_label_area_size(LabelAreaPosition::Left, 60)
-        .set_label_area_size(LabelAreaPosition::Bottom, 60)
-        .build_cartesian_2d(
-            start_values[0]..end_values[end_values.len() - 1],
-            0.0..(*max_bar as f64),
-        )?;
-
-    chart.configure_mesh().draw()?;
-
-    chart.configure_mesh()
-        .x_labels(4) 
-        .y_labels(5) 
-        .x_label_formatter(&|x| format!("{:.1}", x)) 
-        .draw()?;
-
-    chart.draw_series(
-        bars.into_iter().enumerate().map(|(i, count )| {
-            let x0 = start_values[i];
-            let x1 = end_values[i];
-            let y0 = 0.0;
-            let y1 = count as f64;
-
-            Rectangle::new(
-                [(x0, y0), (x1, y1)], 
-                RED.filled(),
-            )
-        }),
-    )?;
-
-
-    chart.draw_series(LineSeries::new(
-        mean_values.iter().zip(normalized_std.iter()).map(|(&x, &y)| (x as f64, y as f64)),
-        &BLUE,
-    ))?;
+            algorithm(current_candle, ticker.clone());
+        }
+        
+    }
     
     Ok(())
 }
