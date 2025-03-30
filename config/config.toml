@@ -1,5 +1,7 @@
 env = "dev"
 data_folder = "data"
 tickers = ["AAPL"]
+strategies = ["Normal Distribution"]
+decision = "Random Forest"
 timerange = "1day"
 api_endpoint = "https://api.twelvedata.com/time_series?"

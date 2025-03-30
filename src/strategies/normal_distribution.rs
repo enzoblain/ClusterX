@@ -26,7 +26,7 @@ pub static CANDLES: Lazy<Mutex<DataFrame>> = Lazy::new(|| {
     )
 });
 
-pub fn strategy(current_candle: Candle) -> Vec<Decision> {
+pub fn strategy(current_candle: &Candle) -> Vec<Decision> {
     let mut candle = CANDLES.lock().unwrap();
     let current_candle_row = current_candle.get_candle_as_row();
 
@@ -39,7 +39,7 @@ pub fn strategy(current_candle: Candle) -> Vec<Decision> {
         *candle = candle.slice(1, candle.height() - 1);
     } else {
         let decision = Decision {
-            signal: "none".into(),
+            signal: "nothing".into(),
             price: None,
             stop_loss: None,
             take_profit: None,

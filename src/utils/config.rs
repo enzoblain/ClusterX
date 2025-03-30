@@ -8,6 +8,8 @@ pub struct Config {
     pub env: String,
     pub data_folder: String,
     pub tickers: Vec<String>,
+    pub strategies: Vec<String>,
+    pub decision: String,
     pub timerange: String,
     pub api_endpoint: String,
 }

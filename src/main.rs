@@ -2,15 +2,20 @@ use clusterx::algorithm::main::algorithm;
 use clusterx::Candle;
 use clusterx::CONFIG;
 use clusterx::data::handler::{get_backtest_data, get_last_candle_from_api};
+use clusterx::utils::log::{init_log, display_log};
 
 use chrono::NaiveDateTime;
 use polars::prelude::DataFrame;
 use std::collections::HashMap;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let (env, mut tickers, timerange) = {
+    let start_time = std::time::Instant::now(); // Start the timer
+
+    init_log(); // Initialize the logger
+
+    let (env, mut tickers, strategies, decision, timerange) = {
         let config = CONFIG.lock().unwrap();
-        (config.env.clone(), config.tickers.clone(), config.timerange.clone())
+        (config.env.clone(), config.tickers.clone(), config.strategies.clone(), config.decision.clone(), config.timerange.clone())
     };
 
     let mut data: HashMap<String, DataFrame> = HashMap::new(); // This will only be used in dev mode
@@ -19,6 +24,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         data = get_backtest_data(&tickers)?;
         tickers = data.keys().cloned().collect(); // Only keep the tickers that are in the data
     }
+
+    display_log(format!("Testing on tickers: {:?}", tickers));
+    display_log(format!("Using strategies: {:?}", strategies));
+    display_log(format!("Using algorithm: {:?} for decision", decision));
 
     // Main algorithm
     let mut _i = 0; // Counter for the row number
@@ -55,10 +64,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 current_candle = get_last_candle_from_api(&ticker, &timerange)?;
             }
 
+            display_log(format!("Executing algorithm for \"{}\" at \"{}\"", ticker, current_candle.datetime));
             algorithm(current_candle.clone(), ticker.clone());
         }
         
     }
+
+    display_log(format!("End of the algorithm"));
+
+    let elapsed_time = start_time.elapsed();
+    display_log(format!("Elapsed time: {:?}", elapsed_time));
     
     Ok(())
 }

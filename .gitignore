@@ -5,3 +5,6 @@ env.toml
 
 # Perso
 .obsidian/
+
+# Logs
+*.log
