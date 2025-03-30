@@ -1,4 +1,6 @@
-use crate::{CONFIG, ENV};
+use crate::Candle;
+use crate::CONFIG;
+use crate::ENV;
 
 use chrono::NaiveDateTime;
 use polars::prelude::*;
@@ -6,16 +8,6 @@ use reqwest::blocking::get;
 use std::collections::HashMap;
 use std::fs::File;
 use std::vec;
-
-#[derive(Debug)]
-pub struct Candle {
-    pub datetime: NaiveDateTime,
-    pub open: f64,
-    pub high: f64,
-    pub low: f64,
-    pub close: f64,
-    pub volume: i64,
-}
 
 pub fn get_backtest_data (tickers: &Vec<String>) -> Result<HashMap<String, DataFrame>, Box<dyn std::error::Error>> {
     // Check the data folder
@@ -100,14 +92,7 @@ pub fn get_last_candle_from_api(ticker: &str, timerange: &str) -> Result<Candle,
     let close = not_parsed_candle.get("close").unwrap().as_str().unwrap().parse::<f64>()?;
     let volume = not_parsed_candle.get("volume").unwrap().as_str().unwrap().parse::<i64>()?;
 
-    let candle = Candle {
-        datetime,
-        open,
-        high,
-        low,
-        close,
-        volume,
-    };
+    let candle = Candle::new_candle(datetime, open, high, low, close, volume);
 
     Ok(candle) 
 }

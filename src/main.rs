@@ -40,14 +40,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
                 
                 // Get the i candle from the data
-                current_candle = Candle {
-                    datetime: NaiveDateTime::parse_from_str(&ticker_data.column("datetime").unwrap().get(_i).unwrap().to_string(), "%Y-%m-%d %H:%M:%S").unwrap(),
-                    open: ticker_data.column("open").unwrap().get(_i).unwrap().to_string().parse::<f64>().unwrap(),
-                    high: ticker_data.column("high").unwrap().get(_i).unwrap().to_string().parse::<f64>().unwrap(),
-                    low: ticker_data.column("low").unwrap().get(_i).unwrap().to_string().parse::<f64>().unwrap(),
-                    close: ticker_data.column("close").unwrap().get(_i).unwrap().to_string().parse::<f64>().unwrap(),
-                    volume: ticker_data.column("volume").unwrap().get(_i).unwrap().to_string().parse::<i64>().unwrap(),
-                };
+                current_candle = Candle::new_candle(
+                    NaiveDateTime::parse_from_str(&ticker_data.column("datetime").unwrap().get(_i).unwrap().to_string(), "%Y-%m-%d %H:%M:%S").unwrap(),
+                    ticker_data.column("open").unwrap().get(_i).unwrap().to_string().parse::<f64>().unwrap(),
+                    ticker_data.column("high").unwrap().get(_i).unwrap().to_string().parse::<f64>().unwrap(),
+                    ticker_data.column("low").unwrap().get(_i).unwrap().to_string().parse::<f64>().unwrap(),
+                    ticker_data.column("close").unwrap().get(_i).unwrap().to_string().parse::<f64>().unwrap(),
+                    ticker_data.column("volume").unwrap().get(_i).unwrap().to_string().parse::<i64>().unwrap(),
+                );
 
                 _i += 1;
             } else {
@@ -55,7 +55,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 current_candle = get_last_candle_from_api(&ticker, &timerange)?;
             }
 
-            algorithm(current_candle, ticker.clone());
+            algorithm(current_candle.clone(), ticker.clone());
         }
         
     }
