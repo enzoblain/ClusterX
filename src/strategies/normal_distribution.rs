@@ -40,10 +40,12 @@ pub fn strategy(current_candle: &Candle) -> Vec<Decision> {
     } else {
         let decision = Decision {
             signal: "nothing".into(),
+            datetime: current_candle.datetime,
             price: None,
             stop_loss: None,
             take_profit: None,
             limit: None,
+            amount: None,
         };
     
         return vec![decision]
@@ -149,16 +151,23 @@ pub fn strategy(current_candle: &Candle) -> Vec<Decision> {
             signal = "sell";
         }
 
+        let epsilon = 10f64.powf(-5.0);
         let price = current_candle.close;
-        let take_profit = price * (100 as f64+ obj_percentage) / 100 as f64;
-        let stop_loss = 0.0;
+        let take_profit = price * (100 as f64 + obj_percentage) / 100 as f64;
+        let mut stop_loss = 0.0;
+        if signal == "sell" {
+            // Avoid negative returns for sell trades
+            stop_loss = price * (100 as f64 - obj_percentage + epsilon) / 100 as f64;
+        }
 
         let decision = Decision {
             signal: signal.into(),
+            datetime: current_candle.datetime,
             price: Some(price),
             stop_loss: Some(stop_loss),
             take_profit: Some(take_profit),
             limit: None,
+            amount: None,
         };
 
         decisions.push(decision);

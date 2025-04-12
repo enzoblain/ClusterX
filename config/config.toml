@@ -5,3 +5,5 @@ strategies = ["Normal Distribution"]
 decision = "Random Forest"
 timerange = "1day"
 api_endpoint = "https://api.twelvedata.com/time_series?"
+money = 10000
+risk = 2

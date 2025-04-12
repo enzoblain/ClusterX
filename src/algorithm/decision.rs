@@ -1,3 +1,5 @@
+use chrono::NaiveDateTime;
+
 use crate::utils::log::display_log;
 
 use std::collections::HashMap;
@@ -5,10 +7,12 @@ use std::collections::HashMap;
 #[derive(Clone, Debug)]
 pub struct Decision {
     pub signal: String, // "buy" or "sell" or "nothing"
+    pub datetime: NaiveDateTime,
     pub price: Option<f64>,
     pub stop_loss: Option<f64>,
     pub take_profit: Option<f64>,
-    pub limit: Option<String>,
+    pub limit: Option<NaiveDateTime>,
+    pub amount: Option<f64>,
 }
 
 pub fn take_decision (decisions: HashMap<String, Vec<Decision>>, ticker: &str) -> Decision {
@@ -27,6 +31,8 @@ pub fn take_decision (decisions: HashMap<String, Vec<Decision>>, ticker: &str) -
     // For now it will just return the first signal
     let keys = decisions.keys().cloned().collect::<Vec<String>>();
     let first_signal = decisions.get(&keys[0]).unwrap().clone().get(0).unwrap().clone();
+
+    display_log(format!("Decision: \"{}\" for \"{}\"", first_signal.signal, ticker));
     
     first_signal
 }

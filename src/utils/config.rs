@@ -1,3 +1,5 @@
+use crate::utils::money::init_money;
+
 use std::fs;
 use std::sync::Mutex;
 use once_cell::sync::Lazy;
@@ -12,6 +14,8 @@ pub struct Config {
     pub decision: String,
     pub timerange: String,
     pub api_endpoint: String,
+    pub money: f64,
+    pub risk: f64,
 }
 
 // Load the configuration from the config.toml file
@@ -20,6 +24,8 @@ pub static CONFIG: Lazy<Mutex<Config>> = Lazy::new(|| {
     let config_file= "config/config.toml";
     let toml_content = fs::read_to_string(config_file).expect("Failed to read config.toml");
     let config: Config = toml::from_str(&toml_content).expect("Failed to parse env.toml");
+
+    init_money(config.money);
 
     Mutex::new(config)
 });

@@ -8,3 +8,9 @@ env.toml
 
 # Logs
 *.log
+
+# Trades result
+result/*.csv
+
+# OS
+.DS_Store

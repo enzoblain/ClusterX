@@ -1,7 +1,10 @@
 use clusterx::algorithm::main::algorithm;
+use clusterx::algorithm::trades::save_trades;
 use clusterx::Candle;
 use clusterx::CONFIG;
 use clusterx::data::handler::{get_backtest_data, get_last_candle_from_api};
+use clusterx::MONEY;
+use clusterx::MONEY_IN_TRADES;
 use clusterx::utils::log::{init_log, display_log};
 
 use chrono::NaiveDateTime;
@@ -25,6 +28,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         tickers = data.keys().cloned().collect(); // Only keep the tickers that are in the data
     }
 
+    let money = MONEY.lock().unwrap().clone();
+
+    display_log(format!("Starting with {} euros", money));
     display_log(format!("Testing on tickers: {:?}", tickers));
     display_log(format!("Using strategies: {:?}", strategies));
     display_log(format!("Using algorithm: {:?} for decision", decision));
@@ -74,6 +80,22 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let elapsed_time = start_time.elapsed();
     display_log(format!("Elapsed time: {:?}", elapsed_time));
+
+    let candle_time = elapsed_time.as_millis() as f64 / _i as f64;
+    display_log(format!("Time per candle: {:?}ms", candle_time));
+
+    let money = MONEY.lock().unwrap().clone();
+    display_log(format!("Final money: {:?}", money));
+
+    let money_in_trades = MONEY_IN_TRADES.lock().unwrap().clone();
+    display_log(format!("Money in trades: {:?}", money_in_trades));
+
+    let money = money + money_in_trades;
+    display_log(format!("Final money: {:?}", money));
+
+    // Save the trades to a file
+    save_trades();  
+    display_log("You can find the trades in the trades folder".to_string());
     
     Ok(())
 }
