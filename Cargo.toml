@@ -1,0 +1,9 @@
+[workspace]
+members = [
+    "ai-engine",
+    "app/src-tauri",
+    "common",
+    "core",
+    "storage",
+    "strategy-runner"
+]

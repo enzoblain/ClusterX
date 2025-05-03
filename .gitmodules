@@ -1,0 +1,18 @@
+[submodule "core"]
+	path = core
+	url = git@github.com:enzoblain/clusterx-core.git
+[submodule "strategy-runner"]
+	path = strategy-runner
+	url = git@github.com:enzoblain/clusterx-strategy-runner.git
+[submodule "ai-engine"]
+	path = ai-engine
+	url = git@github.com:enzoblain/clusterx-ai-engine.git
+[submodule "app"]
+	path = app
+	url = git@github.com:enzoblain/clusterx-app.git
+[submodule "common"]
+	path = common
+	url = git@github.com:enzoblain/clusterx-common.git
+[submodule "storage"]
+	path = storage
+	url = git@github.com:enzoblain/clusterx-storage.git
