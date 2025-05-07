@@ -19,3 +19,6 @@ target/
 # Added by cargo
 
 /target
+
+# Mac OS X Finder directory attributes
+.DS_Store
