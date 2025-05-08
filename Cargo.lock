@@ -520,6 +520,7 @@ name = "common"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "lazy_static",
  "once_cell",
  "serde",
  "serde_json",
