@@ -107,7 +107,7 @@ cargo test                         # Run all tests
 
 ## 🗺️ Roadmap
 
-- [ ] **Candle data retrieval and storage**: Collect market data (candles) in real-time, store them locally, and provide them to users via WebSockets or API for fast access.
+- [x] **Candle data retrieval and storage**: Collect market data (candles) in real-time, store them locally, and provide them to users via WebSockets for fast access.
 - [ ] **Live chart generation**: Create interactive charts with various options (time frames, indicators, overlays) and update them in real-time as new data arrives.
 - [ ] **Real-time indicator calculations**: Implement and display indicators like MACD, Bollinger, (even some SMC), etc., in real-time as new candle data is received.
 - [ ] **Strategy creation and real-time performance monitoring**: Allow users to define trading strategies and monitor their live performance (open positions, profit/loss, etc.).
